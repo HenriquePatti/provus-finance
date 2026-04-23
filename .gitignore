@@ -42,3 +42,8 @@ build/
 # Temporários
 tmp/
 temp/
+
+# SQLite WAL mode files (gerados automaticamente)
+*.db-shm
+*.db-wal
+*.db-journal
