@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 import healthRoutes from './routes/health.routes.js';
+import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -32,15 +33,7 @@ app.use((req, res) => {
   });
 });
 
-// Tratamento de erros genéricos
-app.use((err, req, res, next) => {
-  console.error('Erro não tratado:', err);
-  res.status(500).json({
-    erro: {
-      codigo: 'ERRO_INTERNO',
-      mensagem: 'Ocorreu um erro inesperado. Tente novamente em instantes.',
-    },
-  });
-});
+// Middleware centralizado de erros (sempre por último)
+app.use(errorMiddleware);
 
 export default app;
