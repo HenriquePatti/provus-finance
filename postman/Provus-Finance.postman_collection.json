@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -471,6 +471,323 @@
                   ]
                 },
                 "description": "**Caso:** CT-EP001-US001-14\n**US:** US-001\n**Regras:** RU-019\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `nome` composto apenas por dígitos.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: nome`"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EP-002 — Autenticação",
+      "item": [
+        {
+          "name": "US-006 — Login com JWT (POST /api/auth/login)",
+          "description": "Cenários manuais do endpoint `POST /api/auth/login` cobrindo os 9 casos de teste documentados em `docs/06-testes/casos-teste-ep-002-autenticacao.md` (CT-EP002-US006-01 a CT-EP002-US006-09).\n\n**Ordem de execução:** rode primeiro o CT-01 da US-001 para criar o usuário `ana.souza@teste.local`. Os requests da US-006 reaproveitam essa credencial. Para reexecutar do zero: `cd api && npm run db:reset` e depois US-001 → CT-01 → US-006.\n\n**Dependência entre requests:**\n- Os CTs 01, 03, 05, 07, 08 e 09 dependem do usuário `ana.souza@teste.local` existir (US-001 → CT-01).\n- Os CTs 02, 04 e 06 são independentes.",
+          "item": [
+            {
+              "name": "01 — Login com credenciais válidas",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-01\n**US:** US-006\n**Regras:** RU-021, RU-023, RU-024, RU-026, RG-001\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar antes o CT-01 da US-001 (cria o usuário `ana.souza@teste.local`).\n\n**Passos:**\n1. Enviar `POST /api/auth/login` com `email` e `senha` corretos.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `token` (string JWT) e `usuario` (`{ id, nome, email }`)\n- **Sem** os campos `senha`, `senha_hash` ou `senhaHash`\n\n**Observação:**\n- Para reusar o token em rotas protegidas (após implementação da US-002), copie-o e cole na variável de coleção `tokenAtual`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Login com e-mail não cadastrado",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"naoexiste@teste.local\",\n  \"senha\": \"Qualquer1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-02\n**US:** US-006\n**Regras:** RU-022\n**Prioridade:** Alta\n\n**Pré-condições:**\n- E-mail `naoexiste@teste.local` ainda não cadastrado.\n\n**Passos:**\n1. Enviar `POST /api/auth/login` com um e-mail inexistente.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = CREDENCIAIS_INVALIDAS`\n- Mensagem genérica (não revela se o e-mail existe)."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Login com senha incorreta",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaErrada1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-03\n**US:** US-006\n**Regras:** RU-022, RU-026\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar antes o CT-01 da US-001.\n\n**Passos:**\n1. Enviar `POST /api/auth/login` com `email` correto e `senha` errada.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = CREDENCIAIS_INVALIDAS`\n- Resposta **idêntica** à do CT-02 (anti-enumeração — RU-022)."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Login sem campo email",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-04\n**US:** US-006\n**Regras:** RU-021, RG-014\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição **sem** o campo `email`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo = CAMPO_OBRIGATORIO`\n- `erro.detalhes` deve conter item com `campo: email`."
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Login sem campo senha",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-05\n**US:** US-006\n**Regras:** RU-021, RG-014\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição **sem** o campo `senha`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo = CAMPO_OBRIGATORIO`\n- `erro.detalhes` deve conter item com `campo: senha`."
+              },
+              "response": []
+            },
+            {
+              "name": "06 — Body sem JSON válido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "isto nao e um json valido",
+                  "options": {
+                    "raw": {
+                      "language": "text"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-06\n**US:** US-006\n**Regras:** RG-007\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição com header `Content-Type: application/json` e body em formato **inválido** (ex.: texto puro).\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo = FORMATO_INVALIDO`"
+              },
+              "response": []
+            },
+            {
+              "name": "07 — Inspeção do payload do JWT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-07\n**US:** US-006\n**Regras:** RU-025, RG-013\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar antes o CT-01 da US-001.\n\n**Passos:**\n1. Realizar login com sucesso.\n2. Copiar o `token` retornado.\n3. Colar em [jwt.io](https://jwt.io) (aba Decoded → Payload).\n\n**Resultado esperado:**\n- Payload contém `sub`, `email`, `iat`, `exp`.\n- `sub` igual ao `id` do usuário.\n- `email` em minúsculas.\n- `exp - iat ≈ 86400` segundos (24h)."
+              },
+              "response": []
+            },
+            {
+              "name": "08 — Login case-insensitive no e-mail",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ANA.SOUZA@TESTE.LOCAL\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-08\n**US:** US-006\n**Regras:** RU-010, RG-020\n**Prioridade:** Média\n\n**Pré-condições:**\n- Executar antes o CT-01 da US-001 (cadastro com e-mail em minúsculas).\n\n**Passos:**\n1. Enviar requisição com o mesmo e-mail em **caixa alta**.\n\n**Resultado esperado:**\n- HTTP `200`\n- `usuario.email` retornado em minúsculas.\n- Decodificando o token (jwt.io), o campo `email` do payload está em minúsculas."
+              },
+              "response": []
+            },
+            {
+              "name": "09 — Múltiplas sessões simultâneas",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "**Caso:** CT-EP002-US006-09\n**US:** US-006\n**Regras:** RU-027\n**Prioridade:** Média\n\n**Pré-condições:**\n- Executar antes o CT-01 da US-001.\n\n**Passos:**\n1. Executar este request **duas vezes** com pequeno intervalo (~1s).\n2. Comparar visualmente os dois tokens retornados.\n\n**Resultado esperado:**\n- HTTP `200` em ambas as execuções.\n- Os dois tokens são **diferentes** (`iat` distintos).\n- Decodificando ambos (jwt.io), o `sub` é igual em ambos (mesmo usuário).\n- Login mais recente **não invalida** o anterior (validação completa virá após uma rota protegida real ser implementada — provavelmente no PR da US-002)."
               },
               "response": []
             }
