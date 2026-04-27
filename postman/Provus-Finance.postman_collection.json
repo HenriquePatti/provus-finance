@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.\n\n**US-004 — PUT /api/usuarios/me/senha**",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.\n\n**US-004 — PUT /api/usuarios/me/senha**\nMesmo pré-requisito (cadastro CT-01 + login → `tokenAtual`). Corpo `senhaAtual` + `senhaNova` válidos segundo regras de cadastro (**EP-001/US-004**).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -834,7 +834,7 @@
         },
         {
           "name": "US-004 — Alterar senha (PUT /api/usuarios/me/senha)",
-          "description": "CT-EP001-US004-01 … 07 em `casos-teste-ep-001-usuarios.md`.\nLogin antes (`tokenAtual`). Mesmo critérios de senha do cadastro.",
+          "description": "Cenários manuais do endpoint `PUT /api/usuarios/me/senha`, espelho de CT-EP001-US004-01 … CT-EP001-US004-07 em `docs/06-testes/casos-teste-ep-001-usuarios.md`.\n\n**Fluxo habitual:** primeiro `US-001` → CT-01 (`ana.souza@teste.local` / `SenhaForte1`), depois login (`US-006` CT-01 ou `POST /api/auth/login`) e cole o JWT em `tokenAtual`.\n**CT-06:** depois do `PUT` devolver **200**, executar **`GET /api/usuarios/me`** com o **mesmo** `tokenAtual` (token continua válido — RU-041).\n**CT-05:** este request omite só `senhaAtual`; duplique-o e omita apenas `senhaNova` para cobrir o segundo subcaso (**400** `CAMPO_OBRIGATORIO`).\n**Nova senha:** aplicam-se as mesmas regras do cadastro (RU-012 … RU-016).\n\nSem scripts de teste nos requests.",
           "item": [
             {
               "name": "01 — Alteração com senhas válidas",
@@ -871,7 +871,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-01** · **200** · body `{ mensagem }` apenas"
+                "description": "**Caso:** CT-EP001-US004-01 — Alteração com senha atual correta\n**US:** US-004\n**Regras:** RU-037, RU-038, RU-039, RU-042\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- `senhaAtual` no body coincide com a senha real do usuário cadastrado (ex.: `SenhaForte1`).\n\n**Passos:**\n1. `PUT /api/usuarios/me/senha` com `senhaAtual` correta e `senhaNova` válida (complexidade de cadastro).\n\n**Resultado esperado:**\n- HTTP `200`\n- Corpo com mensagem de sucesso; sem exponer senha nem hash (`mensagem`)."
               },
               "response": []
             },
@@ -910,7 +910,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-02** · **401** CREDENCIAIS_INVALIDAS"
+                "description": "**Caso:** CT-EP001-US004-02 — Senha atual incorreta\n**US:** US-004\n**Regras:** RU-038\n**Prioridade:** Alta\n\n**Passos:**\n1. `PUT /api/usuarios/me/senha` com `senhaAtual` errada (`senhaNova` pode ser válida).\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = CREDENCIAIS_INVALIDAS`."
               },
               "response": []
             },
@@ -949,7 +949,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-03** · **400** SENHA_IGUAL_ATUAL"
+                "description": "**Caso:** CT-EP001-US004-03 — Nova senha igual à atual\n**US:** US-004\n**Regras:** RU-040\n**Prioridade:** Alta\n\n**Passos:**\n1. Enviar `senhaNova` idêntica a `senhaAtual` (ambas válidas em formato).\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo = SENHA_IGUAL_ATUAL`."
               },
               "response": []
             },
@@ -988,7 +988,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-04** · **400** VALIDACAO"
+                "description": "**Caso:** CT-EP001-US004-04 — Nova senha inválida por complexidade\n**US:** US-004\n**Regras:** RU-039, RU-012, RU-013, RU-014\n**Prioridade:** Alta\n\n**Passos:**\n1. `senhaAtual` correta e `senhaNova` sem atender requisitos (ex.: apenas `abc`).\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação de senha (código de validação conforme contrato da API)."
               },
               "response": []
             },
@@ -1027,7 +1027,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-05** · sem `senhaAtual` · **400** CAMPO_OBRIGATORIO — duplicar o request e enviar só `senhaAtual` para cobrir o outro caso"
+                "description": "**Caso:** CT-EP001-US004-05 — Campo obrigatório ausente\n**US:** US-004\n**Regras:** RU-037, RG-014\n**Prioridade:** Média\n\n**Passos:**\n1. Este exemplo omite apenas `senhaAtual`; duplique e envie corpo apenas com `senhaAtual` (omitir `senhaNova`) para o outro cenário equivalente.\n\n**Resultado esperado:**\n- HTTP `400`\n- `CAMPO_OBRIGATORIO` quando um dos campos obrigatórios estiver ausente."
               },
               "response": []
             },
@@ -1066,7 +1066,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-06** · após **200**, chame `GET /api/usuarios/me` com o mesmo token → **200** (RU-041)"
+                "description": "**Caso:** CT-EP001-US004-06 — Token permanece válido após alteração\n**US:** US-004\n**Regras:** RU-041\n**Prioridade:** Média\n\n**Passos:**\n1. Alterar senha com sucesso (`PUT` → **200**).\n2. Com o mesmo `tokenAtual`, chamar `GET /api/usuarios/me`.\n\n**Resultado esperado:**\n- Segundo pedido deve retornar **200** — o JWT anterior não foi invalidado pela mudança de senha."
               },
               "response": []
             },
@@ -1105,7 +1105,7 @@
                     "senha"
                   ]
                 },
-                "description": "**CT-07** · corpo só `mensagem` — sem hash (use senhas coerentes com o fluxo manual anterior)"
+                "description": "**Caso:** CT-EP001-US004-07 — Não expor senha/hash na resposta\n**US:** US-004\n**Regras:** RG-004\n**Prioridade:** Média\n\n**Pré-condições:**\n- Credenciais no body devem estar alinhadas com o estado atual do utilizador manual (rodar requests anteriores em ordem ou ajustar `senhaAtual` / `senhaNova`).\n\n**Passos:**\n1. Executar alteração válida ou reutilizar o **200** de outro cenário bem-sucedido.\n2. Inspecionar o JSON retornado.\n\n**Resultado esperado:**\n- Ausência de campos como `senha`, `senha_hash` ou valores de hash.\n- Em sucesso típico, apenas objeto com `mensagem` (mensagem textual)."
               },
               "response": []
             }
