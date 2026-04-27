@@ -69,9 +69,29 @@ export function emailExiste(email) {
   return total > 0;
 }
 
+/**
+ * Atualiza nome e e-mail do usuário (perfil).
+ *
+ * @param {number} id
+ * @param {Object} dados
+ * @param {string} dados.nome
+ * @param {string} dados.email
+ */
+export function atualizarDados(id, { nome, email }) {
+  const stmt = db.prepare(`
+    UPDATE usuarios
+    SET nome = ?, email = ?, atualizado_em = datetime('now')
+    WHERE id = ?
+  `);
+
+  stmt.run(nome, email, id);
+  return buscarPorId(id);
+}
+
 export default {
   inserir,
   buscarPorId,
   buscarPorEmail,
   emailExiste,
+  atualizarDados,
 };

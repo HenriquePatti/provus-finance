@@ -30,7 +30,20 @@ export function obterPerfil(req, res, next) {
   }
 }
 
+/**
+ * PUT /api/usuarios/me — atualiza nome e/ou e-mail (US-003).
+ */
+export function atualizarPerfil(req, res, next) {
+  try {
+    const atualizado = usuarioService.atualizarPerfil(req.usuario.id, req.body || {});
+    res.status(200).json(atualizado);
+  } catch (erro) {
+    next(erro);
+  }
+}
+
 export default {
   criar,
   obterPerfil,
+  atualizarPerfil,
 };
