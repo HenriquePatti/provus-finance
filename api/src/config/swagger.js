@@ -34,8 +34,8 @@ const swaggerOptions = {
     },
     tags: [
       { name: 'Sistema', description: 'Endpoints de sistema e saúde' },
-      { name: 'Autenticação', description: 'Login e geração de tokens' },
       { name: 'Usuários', description: 'Gestão de usuários' },
+      { name: 'Autenticação', description: 'Login e geração de tokens' },
       { name: 'Contas', description: 'Gestão de contas financeiras' },
       { name: 'Categorias', description: 'Gestão de categorias' },
       { name: 'Transações', description: 'Gestão de transações' },
