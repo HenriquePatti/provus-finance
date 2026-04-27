@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.\n\n**US-004 — PUT /api/usuarios/me/senha**",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -827,6 +827,285 @@
                   ]
                 },
                 "description": "**CT-EP001-US003-06** · sem header Authorization · **401** `TOKEN_AUSENTE`"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-004 — Alterar senha (PUT /api/usuarios/me/senha)",
+          "description": "CT-EP001-US004-01 … 07 em `casos-teste-ep-001-usuarios.md`.\nLogin antes (`tokenAtual`). Mesmo critérios de senha do cadastro.",
+          "item": [
+            {
+              "name": "01 — Alteração com senhas válidas",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"SenhaForte1\",\n  \"senhaNova\": \"NovaSenha Forte9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-01** · **200** · body `{ mensagem }` apenas"
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Senha atual incorreta",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"Errada888\",\n  \"senhaNova\": \"NovaSenha Forte9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-02** · **401** CREDENCIAIS_INVALIDAS"
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Nova igual à atual",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"SenhaForte1\",\n  \"senhaNova\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-03** · **400** SENHA_IGUAL_ATUAL"
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Nova senha fraca",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"SenhaForte1\",\n  \"senhaNova\": \"abc\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-04** · **400** VALIDACAO"
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Campo obrigatório ausente",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaNova\": \"NovaSenha Forte9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-05** · sem `senhaAtual` · **400** CAMPO_OBRIGATORIO — duplicar o request e enviar só `senhaAtual` para cobrir o outro caso"
+              },
+              "response": []
+            },
+            {
+              "name": "06 — Após alterar: token ainda funciona no GET /me",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"SenhaForte1\",\n  \"senhaNova\": \"Outra Forte X1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-06** · após **200**, chame `GET /api/usuarios/me` com o mesmo token → **200** (RU-041)"
+              },
+              "response": []
+            },
+            {
+              "name": "07 — Resposta sem dados sensíveis",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senhaAtual\": \"Outra Forte X1\",\n  \"senhaNova\": \"Segunda Forte Y2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me/senha",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me",
+                    "senha"
+                  ]
+                },
+                "description": "**CT-07** · corpo só `mensagem` — sem hash (use senhas coerentes com o fluxo manual anterior)"
               },
               "response": []
             }

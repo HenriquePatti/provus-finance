@@ -77,6 +77,41 @@ router.put('/me', authMiddleware, usuarioController.atualizarPerfil);
 
 /**
  * @swagger
+ * /api/usuarios/me/senha:
+ *   put:
+ *     tags: [Usuários]
+ *     summary: Altera a senha do usuário autenticado
+ *     description: |
+ *       Exige `senhaAtual` correta e `senhaNova` que atenda às mesmas regras do cadastro.
+ *       Token JWT permanece válido após a alteração.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [senhaAtual, senhaNova]
+ *             properties:
+ *               senhaAtual:
+ *                 type: string
+ *                 format: password
+ *               senhaNova:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Senha atualizada — body `{ mensagem }` apenas
+ *       400:
+ *         description: VALIDACAO, SENHA_IGUAL_ATUAL ou CAMPO_OBRIGATORIO
+ *       401:
+ *         description: CREDENCIAIS_INVALIDAS (senha atual incorreta)
+ */
+router.put('/me/senha', authMiddleware, usuarioController.alterarSenha);
+
+/**
+ * @swagger
  * /api/usuarios:
  *   post:
  *     tags: [Usuários]

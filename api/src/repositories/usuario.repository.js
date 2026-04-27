@@ -88,10 +88,28 @@ export function atualizarDados(id, { nome, email }) {
   return buscarPorId(id);
 }
 
+/**
+ * Atualiza apenas o hash da senha (US-004).
+ *
+ * @param {number} id
+ * @param {string} senhaHash
+ */
+export function atualizarSenhaHash(id, senhaHash) {
+  const stmt = db.prepare(`
+    UPDATE usuarios
+    SET senha_hash = ?, atualizado_em = datetime('now')
+    WHERE id = ?
+  `);
+
+  stmt.run(senhaHash, id);
+  return buscarPorId(id);
+}
+
 export default {
   inserir,
   buscarPorId,
   buscarPorEmail,
   emailExiste,
   atualizarDados,
+  atualizarSenhaHash,
 };
