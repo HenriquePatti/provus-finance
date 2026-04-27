@@ -196,7 +196,84 @@ export function obterPerfil(usuarioId) {
   return formatarResposta(usuario);
 }
 
+/**
+ * PUT /api/usuarios/me — atualiza nome e/ou e-mail (US-003).
+ *
+ * Aceita corpo parcial: só `nome`, só `email`, ou ambos.
+ * Exige pelo menos um campo presente no body.
+ *
+ * @param {number} usuarioId
+ * @param {Object} body - { nome?, email? }
+ */
+export function atualizarPerfil(usuarioId, body = {}) {
+  const temNome = Object.prototype.hasOwnProperty.call(body, 'nome');
+  const temEmail = Object.prototype.hasOwnProperty.call(body, 'email');
+
+  if (!temNome && !temEmail) {
+    throw new AppError(
+      'CORPO_VAZIO',
+      'Informe ao menos um campo (nome ou email) para atualizar.',
+      400
+    );
+  }
+
+  const atual = usuarioRepository.buscarPorId(usuarioId);
+  if (!atual) {
+    throw new AppError('USUARIO_NAO_ENCONTRADO', 'Usuário não encontrado.', 404);
+  }
+
+  const erros = [];
+  if (temNome) {
+    const erroNome = validarNome(body.nome);
+    if (erroNome) erros.push(erroNome);
+  }
+  if (temEmail) {
+    const erroEmail = validarEmail(body.email);
+    if (erroEmail) erros.push(erroEmail);
+  }
+
+  if (erros.length > 0) {
+    const todosSaoObrigatorios = erros.every((e) =>
+      e.problema.toLowerCase().includes('obrigatóri')
+    );
+    const codigo = todosSaoObrigatorios ? 'CAMPO_OBRIGATORIO' : 'VALIDACAO';
+    const mensagem = todosSaoObrigatorios
+      ? 'Um ou mais campos obrigatórios não foram informados.'
+      : 'Existem campos inválidos na requisição.';
+    throw new AppError(codigo, mensagem, 400, erros);
+  }
+
+  let nomeFinal = atual.nome;
+  let emailFinal = atual.email;
+
+  if (temNome) {
+    nomeFinal = typeof body.nome === 'string' ? body.nome.trim().replace(/\s+/g, ' ') : body.nome;
+  }
+  if (temEmail) {
+    emailFinal = typeof body.email === 'string' ? body.email.trim().toLowerCase() : body.email;
+  }
+
+  if (temEmail) {
+    const outro = usuarioRepository.buscarPorEmail(emailFinal);
+    if (outro && outro.id !== usuarioId) {
+      throw new AppError(
+        'EMAIL_JA_CADASTRADO',
+        'Já existe um usuário com esse e-mail.',
+        409
+      );
+    }
+  }
+
+  const atualizado = usuarioRepository.atualizarDados(usuarioId, {
+    nome: nomeFinal,
+    email: emailFinal,
+  });
+
+  return formatarResposta(atualizado);
+}
+
 export default {
   criar,
   obterPerfil,
+  atualizarPerfil,
 };

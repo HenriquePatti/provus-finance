@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -601,6 +601,236 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "US-003 — Atualizar dados do perfil (PUT /api/usuarios/me)",
+          "description": "Cenários manuais de `PUT /api/usuarios/me` espelho de CT-EP001-US003-01 … 06 (`casos-teste-ep-001-usuarios.md`).\n\n**Pré-comum:** `tokenAtual` válido (`POST /api/auth/login` após US-001 CT-01 onde aplicável).\n**Pré CT-03:** existe outro utilizador com e-mail diferente — use `POST /api/usuarios` com outro utilizador antes e cole o target em `emailOutroUser`; ajuste o body do request 03.\n\nSem scripts de teste nos requests.",
+          "item": [
+            {
+              "name": "01 — Atualizar nome e e-mail",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nome Perfil PUT 01\",\n  \"email\": \"perfil.put01@teste.local\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-01** — novo e-mail ainda disponível · **200**"
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Atualizar apenas nome",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Somente Sobrenome Novo\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-02** · **200**, e-mail anterior inalterado"
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Conflito e-mail de outro utilizador",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{emailOutroUser}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-03**\n\nPré-semeie outro usuário no banco ou cadastre outro e-mail; coloque esse e-mail em `emailOutroUser`.\n\n** esperado:** 409 `EMAIL_JA_CADASTRADO`"
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Manter próprio e-mail",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nome Com Mesmo Email\",\n  \"email\": \"ana.souza@teste.local\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-04** · utilizador inicial `ana.souza@teste.local` (US-001 CT-01) · **200**"
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Nome apenas números",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-05** · **400** validação nome"
+              },
+              "response": []
+            },
+            {
+              "name": "06 — PUT sem token",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nome\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**CT-EP001-US003-06** · sem header Authorization · **401** `TOKEN_AUSENTE`"
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
@@ -939,6 +1169,12 @@
       "value": "",
       "type": "string",
       "description": "JWT expirado — só CT-04 (ver request 04)."
+    },
+    {
+      "key": "emailOutroUser",
+      "value": "",
+      "type": "string",
+      "description": "E-mail de um segundo usuário já cadastrado (CT-03)."
     }
   ]
 }

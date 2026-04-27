@@ -41,8 +41,39 @@ const router = Router();
  *         description: Token ausente, inválido ou expirado
  *       404:
  *         description: Usuário associado ao token não existe mais
+ *   put:
+ *     tags: [Usuários]
+ *     summary: Atualiza próprio nome e/ou e-mail
+ *     description: |
+ *       Atualização parcial: envie apenas `nome`, apenas `email`, ou ambos.
+ *       Mesmas regras do cadastro. E-mail usado por outro usuário retorna 409.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             minProperties: 1
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Perfil atualizado
+ *       400:
+ *         description: VALIDACAO ou CORPO_VAZIO
+ *       401:
+ *         description: Token ausente ou inválido
+ *       409:
+ *         description: E-mail já usado por outro usuário
  */
 router.get('/me', authMiddleware, usuarioController.obterPerfil);
+router.put('/me', authMiddleware, usuarioController.atualizarPerfil);
 
 /**
  * @swagger
