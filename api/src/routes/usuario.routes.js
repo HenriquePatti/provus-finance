@@ -1,7 +1,48 @@
 import { Router } from 'express';
 import usuarioController from '../controllers/usuario.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = Router();
+
+/**
+ * @swagger
+ * /api/usuarios/me:
+ *   get:
+ *     tags: [Usuários]
+ *     summary: Consulta próprio perfil autenticado
+ *     description: |
+ *       Devolve dados do usuário autenticado (sem dados sensíveis).
+ *       Requer `Authorization: Bearer <token>` obtido via `POST /api/auth/login`.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Perfil público do usuário
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 nome:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                 criadoEm:
+ *                   type: string
+ *                   format: date-time
+ *                 atualizadoEm:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Token ausente, inválido ou expirado
+ *       404:
+ *         description: Usuário associado ao token não existe mais
+ */
+router.get('/me', authMiddleware, usuarioController.obterPerfil);
 
 /**
  * @swagger

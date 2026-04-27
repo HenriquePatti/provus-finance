@@ -16,6 +16,21 @@ export async function criar(req, res, next) {
   }
 }
 
+/**
+ * GET /api/usuarios/me — consulta próprio perfil autenticado (US-002).
+ *
+ * Espera middleware `authMiddleware` (req.usuario.{ id, email }).
+ */
+export function obterPerfil(req, res, next) {
+  try {
+    const dados = usuarioService.obterPerfil(req.usuario.id);
+    res.status(200).json(dados);
+  } catch (erro) {
+    next(erro);
+  }
+}
+
 export default {
   criar,
+  obterPerfil,
 };

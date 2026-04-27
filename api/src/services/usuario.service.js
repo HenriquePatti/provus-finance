@@ -176,6 +176,27 @@ export async function criar(dados) {
   return formatarResposta(usuarioCriado);
 }
 
+/**
+ * Retorna o perfil público do usuário (GET /api/usuarios/me).
+ *
+ * @param {number} usuarioId — id vindos do payload JWT (`sub`)
+ * @returns {Object} `{ id, nome, email, criadoEm, atualizadoEm }` — sem campos sensíveis
+ */
+export function obterPerfil(usuarioId) {
+  const usuario = usuarioRepository.buscarPorId(usuarioId);
+
+  if (!usuario) {
+    throw new AppError(
+      'USUARIO_NAO_ENCONTRADO',
+      'Usuário não encontrado.',
+      404
+    );
+  }
+
+  return formatarResposta(usuario);
+}
+
 export default {
   criar,
+  obterPerfil,
 };
