@@ -1,5 +1,5 @@
 import usuarioRepository from '../repositories/usuario.repository.js';
-import { gerarHash } from '../utils/hash.js';
+import { compararHash, gerarHash } from '../utils/hash.js';
 import { AppError } from '../middlewares/error.middleware.js';
 
 // ============================================================
@@ -272,8 +272,76 @@ export function atualizarPerfil(usuarioId, body = {}) {
   return formatarResposta(atualizado);
 }
 
+/**
+ * PUT /api/usuarios/me/senha — altera senha (US-004).
+ *
+ * JWT continua válido após alteração (RU-041) — apenas o hash na base muda.
+ *
+ * @param {number} usuarioId
+ * @param {{ senhaAtual?: string, senhaNova?: string }} body
+ * @returns {Promise<{ mensagem: string }>}
+ */
+export async function alterarSenha(usuarioId, body = {}) {
+  const temSenhaAtual = Object.prototype.hasOwnProperty.call(body, 'senhaAtual');
+  const temSenhaNova = Object.prototype.hasOwnProperty.call(body, 'senhaNova');
+
+  const errosObrigatorio = [];
+  if (!temSenhaAtual) {
+    errosObrigatorio.push({ campo: 'senhaAtual', problema: 'Senha atual é obrigatória.' });
+  }
+  if (!temSenhaNova) {
+    errosObrigatorio.push({ campo: 'senhaNova', problema: 'Senha nova é obrigatória.' });
+  }
+
+  if (errosObrigatorio.length > 0) {
+    throw new AppError(
+      'CAMPO_OBRIGATORIO',
+      'Um ou mais campos obrigatórios não foram informados.',
+      400,
+      errosObrigatorio
+    );
+  }
+
+  const senhaAtual = body.senhaAtual;
+  const senhaNova = body.senhaNova;
+
+  const usuario = usuarioRepository.buscarPorId(usuarioId);
+  if (!usuario) {
+    throw new AppError('USUARIO_NAO_ENCONTRADO', 'Usuário não encontrado.', 404);
+  }
+
+  const atualConfere = await compararHash(senhaAtual, usuario.senha_hash);
+
+  if (!atualConfere) {
+    throw new AppError('CREDENCIAIS_INVALIDAS', 'Senha atual incorreta.', 401);
+  }
+
+  if (senhaNova === senhaAtual) {
+    throw new AppError(
+      'SENHA_IGUAL_ATUAL',
+      'A nova senha deve ser diferente da senha atual.',
+      400
+    );
+  }
+
+  const erroSenhaNova = validarSenha(senhaNova);
+  if (erroSenhaNova) {
+    throw new AppError('VALIDACAO', 'Existem campos inválidos na requisição.', 400, [
+      erroSenhaNova,
+    ]);
+  }
+
+  const novoHash = await gerarHash(senhaNova);
+  usuarioRepository.atualizarSenhaHash(usuarioId, novoHash);
+
+  return {
+    mensagem: 'Senha alterada com sucesso.',
+  };
+}
+
 export default {
   criar,
   obterPerfil,
   atualizarPerfil,
+  alterarSenha,
 };

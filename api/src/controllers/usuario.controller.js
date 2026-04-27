@@ -42,8 +42,21 @@ export function atualizarPerfil(req, res, next) {
   }
 }
 
+/**
+ * PUT /api/usuarios/me/senha — alteração de senha (US-004).
+ */
+export async function alterarSenha(req, res, next) {
+  try {
+    const resultado = await usuarioService.alterarSenha(req.usuario.id, req.body || {});
+    res.status(200).json(resultado);
+  } catch (erro) {
+    next(erro);
+  }
+}
+
 export default {
   criar,
   obterPerfil,
   atualizarPerfil,
+  alterarSenha,
 };
