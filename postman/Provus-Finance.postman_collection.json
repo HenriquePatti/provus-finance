@@ -1,0 +1,489 @@
+{
+  "info": {
+    "name": "Provus Finance — Manual API Tests",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 5000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:5000`. Pode ser sobrescrita por environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "EP-001 — Usuários",
+      "item": [
+        {
+          "name": "US-001 — Cadastrar usuário (POST /api/usuarios)",
+          "description": "Cenários manuais do endpoint `POST /api/usuarios` cobrindo os 14 casos de teste documentados em `docs/06-testes/casos-teste-ep-001-usuarios.md` (CT-EP001-US001-01 a CT-EP001-US001-14).\n\n**Ordem de execução:** os requests assumem que o banco começa vazio. Para reexecutar a coleção do zero: `cd api && npm run db:reset` antes de rodar novamente.\n\n**Dependência entre requests:**\n- O CT-02 (e-mail duplicado) depende do CT-01 ter sido executado primeiro.\n- Os demais cenários são independentes.",
+          "item": [
+            {
+              "name": "01 — Cadastro com dados válidos",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-01\n**US:** US-001\n**Regras:** RU-001, RU-002, RU-005, RU-006, RG-001, RG-004\n**Prioridade:** Alta\n\n**Pré-condições:**\n- E-mail `ana.souza@teste.local` ainda não cadastrado.\n\n**Passos:**\n1. Enviar `POST /api/usuarios` com `nome`, `email` e `senha` válidos.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body com `id`, `nome`, `email`, `criadoEm`, `atualizadoEm`\n- **Sem** os campos `senha`, `senha_hash` ou `senhaHash`"
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Cadastro com e-mail já existente",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-02\n**US:** US-001\n**Regras:** RU-003\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar o CT-01 antes (cria o usuário com `ana.souza@teste.local`).\n\n**Passos:**\n1. Repetir o cadastro com o mesmo e-mail.\n\n**Resultado esperado:**\n- HTTP `409`\n- `erro.codigo = EMAIL_JA_CADASTRADO`"
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Cadastro sem nome",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-03\n**US:** US-001\n**Regras:** RU-001, RG-014, RG-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição **sem** o campo `nome`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo` em `[CAMPO_OBRIGATORIO, VALIDACAO]`\n- `erro.detalhes` deve conter item com `campo: nome`"
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Cadastro sem e-mail",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-04\n**US:** US-001\n**Regras:** RU-001, RG-014, RG-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição **sem** o campo `email`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: email`"
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Cadastro sem senha",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-05\n**US:** US-001\n**Regras:** RU-001, RG-014, RG-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar requisição **sem** o campo `senha`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: senha`"
+              },
+              "response": []
+            },
+            {
+              "name": "06 — E-mail com formato inválido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza-sem-arroba\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-06\n**US:** US-001\n**Regras:** RU-008, RU-011, RG-021\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar e-mail em formato inválido (sem `@`).\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: email`"
+              },
+              "response": []
+            },
+            {
+              "name": "07 — E-mail acima do limite",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-07\n**US:** US-001\n**Regras:** RU-009\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar e-mail com 257 caracteres (245 letras `a` + `@teste.local`).\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: email`"
+              },
+              "response": []
+            },
+            {
+              "name": "08 — Senha abaixo do mínimo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"Ab1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-08\n**US:** US-001\n**Regras:** RU-012\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar senha com menos de 8 caracteres.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: senha`"
+              },
+              "response": []
+            },
+            {
+              "name": "09 — Senha sem letra maiúscula",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"senhaforte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-09\n**US:** US-001\n**Regras:** RU-014\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar senha sem nenhuma letra maiúscula.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: senha`"
+              },
+              "response": []
+            },
+            {
+              "name": "10 — Senha sem letra minúscula",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SENHAFORTE1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-10\n**US:** US-001\n**Regras:** RU-014\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar senha sem nenhuma letra minúscula.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: senha`"
+              },
+              "response": []
+            },
+            {
+              "name": "11 — Senha sem número",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-11\n**US:** US-001\n**Regras:** RU-014\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar senha sem nenhum dígito.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: senha`"
+              },
+              "response": []
+            },
+            {
+              "name": "12 — E-mail normalizado para minúsculas",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Mix\",\n  \"email\": \"ANA.Mix@Teste.Local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-12\n**US:** US-001\n**Regras:** RU-010, RG-020\n**Prioridade:** Média\n\n**Pré-condições:**\n- E-mail `ana.mix@teste.local` ainda não cadastrado.\n\n**Passos:**\n1. Cadastrar usuário com e-mail em caixa mista (`ANA.Mix@Teste.Local`).\n\n**Resultado esperado:**\n- HTTP `201`\n- Body deve devolver `email: \"ana.mix@teste.local\"` (todo em minúsculas)"
+              },
+              "response": []
+            },
+            {
+              "name": "13 — Nome com espaços normalizados",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"  Ana    Souza  \",\n  \"email\": \"ana.espacos@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-13\n**US:** US-001\n**Regras:** RU-020, RG-016\n**Prioridade:** Média\n\n**Pré-condições:**\n- E-mail `ana.espacos@teste.local` ainda não cadastrado.\n\n**Passos:**\n1. Cadastrar usuário com nome contendo espaços iniciais, finais e múltiplos no meio.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body deve devolver `nome: \"Ana Souza\"` (espaços colapsados, sem trim sobrando)"
+              },
+              "response": []
+            },
+            {
+              "name": "14 — Nome inválido (somente números)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"12345\",\n  \"email\": \"ana.numeros@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US001-14\n**US:** US-001\n**Regras:** RU-019\n**Prioridade:** Média\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `nome` composto apenas por dígitos.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.detalhes` deve conter item com `campo: nome`"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}
