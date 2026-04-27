@@ -199,7 +199,7 @@ NODE_ENV=development
 JWT_SECRET=<chave-secreta-gerada>
 JWT_EXPIRES_IN=24h
 BCRYPT_ROUNDS=10
-DATABASE_PATH=./database/provus.db
+DB_PATH=./database/provus.db
 ```
 
 ---
