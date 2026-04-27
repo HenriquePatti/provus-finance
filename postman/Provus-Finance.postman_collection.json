@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -475,6 +475,132 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "US-002 — Consultar próprio perfil (GET /api/usuarios/me)",
+          "description": "Cenários manuais do endpoint `GET /api/usuarios/me`, espelho dos casos CT-EP001-US002-01 a CT-EP001-US002-05 em `docs/06-testes/casos-teste-ep-001-usuarios.md`.\n\n**Fluxo habitual:** primeiro `US-001` → CT-01 (cria `ana.souza@teste.local`), depois `US-006` → CT-01 (login); copiar o JWT retornado para a variável de coleção `tokenAtual`.\n\n**CT-04 (token expirado):** preencher `tokenJWTExpirado` conforme comando na descrição do request **04**.\n\nSem scripts de teste nos requests — apenas exploração manual.",
+          "item": [
+            {
+              "name": "01 — Consulta com token válido",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US002-01\n**US:** US-002\n**Regras:** RU-028, RU-029, RG-008\n\n**Passos:**\n1. Preencher `tokenAtual` (login US-006 ou `POST /api/auth/login`).\n2. `GET /api/usuarios/me`.\n\n**Resultado esperado:** HTTP `200` — `id`, `nome`, `email`, `criadoEm`, `atualizadoEm` — sem `senha` / `senha_hash`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Consulta sem token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US002-02\n**US:** US-002\n**Regras:** RG-009\n\n**Resultado esperado:** HTTP `401`, `TOKEN_AUSENTE`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Consulta com token inválido",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer formato-invalido-nao-jwt"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US002-03\n**US:** US-002\n**Regras:** RG-010\n\n**Resultado esperado:** HTTP `401`, `TOKEN_INVALIDO`."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Consulta com token expirado",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenJWTExpirado}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US002-04\n**US:** US-002\n**Regras:** RG-011\n\n**Gerar JWT expirado (pasta `api/`, `JWT_SECRET` no `.env`):**\n```bash\nnode --input-type=module -e \"import jwt from 'jsonwebtoken'; import dotenv from 'dotenv'; dotenv.config(); const s=process.env.JWT_SECRET; const t=jwt.sign({sub:1,email:'ana.souza@teste.local',exp:Math.floor(Date.now()/1000)-600},s); console.log(t);\"\n```\nColar a saída em `tokenJWTExpirado` (ajuste `sub`/`email` ao utilizador real).\n\n**Resultado esperado:** HTTP `401`, `TOKEN_EXPIRADO`."
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Verificar não exposição de dados sensíveis",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US002-05\n**US:** US-002\n**Regras:** RG-004\n\nMesmo token que **01**. Verificar JSON sem `senha`, `senha_hash`, `senhaHash`."
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
@@ -801,6 +927,18 @@
       "key": "baseUrl",
       "value": "http://localhost:3000",
       "type": "string"
+    },
+    {
+      "key": "tokenAtual",
+      "value": "",
+      "type": "string",
+      "description": "JWT após `POST /api/auth/login`."
+    },
+    {
+      "key": "tokenJWTExpirado",
+      "value": "",
+      "type": "string",
+      "description": "JWT expirado — só CT-04 (ver request 04)."
     }
   ]
 }
