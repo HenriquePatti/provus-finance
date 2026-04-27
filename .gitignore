@@ -47,3 +47,8 @@ temp/
 *.db-shm
 *.db-wal
 *.db-journal
+
+# Banco de teste (isolado do banco de desenvolvimento)
+api/database/provus-test.db
+api/database/provus-test.db-shm
+api/database/provus-test.db-wal
