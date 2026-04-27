@@ -8,23 +8,22 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Caminho do arquivo do banco (resolvido a partir do .env)
-const dbPath = process.env.DB_PATH
-  ? path.resolve(__dirname, '../../', process.env.DB_PATH)
-  : path.resolve(__dirname, '../../database/provus.db');
+// Escolhe o banco conforme o ambiente:
+// - NODE_ENV=test  → banco separado (provus-test.db)
+// - demais ambientes → banco definido em DB_PATH (ou provus.db)
+const isTest = process.env.NODE_ENV === 'test';
 
-/**
- * Cria e retorna uma instância de conexão com o SQLite.
- * Ativa foreign keys por padrão.
- */
+const dbPath = isTest
+  ? path.resolve(__dirname, '../../database/provus-test.db')
+  : (process.env.DB_PATH
+      ? path.resolve(__dirname, '../../', process.env.DB_PATH)
+      : path.resolve(__dirname, '../../database/provus.db'));
+
 const db = new Database(dbPath, {
   verbose: process.env.NODE_ENV === 'development' ? console.log : null,
 });
 
-// Ativa foreign keys (SQLite não ativa por padrão)
 db.pragma('foreign_keys = ON');
-
-// Modo WAL para melhor performance e concorrência
 db.pragma('journal_mode = WAL');
 
 export default db;
