@@ -54,9 +54,26 @@ export async function alterarSenha(req, res, next) {
   }
 }
 
+/**
+ * DELETE /api/usuarios/me
+ * Exclui a conta do usuário autenticado.
+ */
+export async function excluirConta(req, res, next) {
+  try {
+    const usuarioId = req.usuario.id;
+    await usuarioService.excluirConta(usuarioId, req.body);
+
+    // 204 No Content — sucesso sem body
+    res.status(204).send();
+  } catch (erro) {
+    next(erro);
+  }
+}
+
 export default {
   criar,
   obterPerfil,
   atualizarPerfil,
   alterarSenha,
+  excluirConta
 };

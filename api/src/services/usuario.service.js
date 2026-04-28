@@ -339,9 +339,81 @@ export async function alterarSenha(usuarioId, body = {}) {
   };
 }
 
+/**
+ * DELETE /api/usuarios/me — exclui a conta do usuário autenticado (US-005).
+ *
+ * Exige confirmação de senha no body por segurança (RU-044).
+ *
+ * Após exclusão:
+ * - Token JWT antigo continua tecnicamente "válido" (assinado),
+ *   mas qualquer requisição autenticada vai retornar 404 USUARIO_NAO_ENCONTRADO
+ *   ao tentar carregar o usuário pelo `sub` do token (RU-048).
+ * - O e-mail volta a ficar disponível para novo cadastro (RU-049).
+ *
+ * Atomicidade: a exclusão é executada em transação única (RU-046, RG-038).
+ * Quando houver tabelas relacionadas (contas, categorias, transações),
+ * elas serão removidas em cascata via foreign keys.
+ *
+ * @param {number} usuarioId
+ * @param {{ senha?: string }} body
+ * @returns {Promise<void>} Não retorna body — controller envia 204
+ * @throws {AppError} 400 CAMPO_OBRIGATORIO — senha ausente
+ * @throws {AppError} 401 CREDENCIAIS_INVALIDAS — senha incorreta
+ * @throws {AppError} 404 USUARIO_NAO_ENCONTRADO — usuário do token não existe
+ */
+export async function excluirConta(usuarioId, body = {}) {
+  const temSenha = Object.prototype.hasOwnProperty.call(body, 'senha');
+
+  if (!temSenha) {
+    throw new AppError(
+      'CAMPO_OBRIGATORIO',
+      'Senha de confirmação é obrigatória.',
+      400,
+      [{ campo: 'senha', problema: 'Senha é obrigatória.' }]
+    );
+  }
+
+  const senha = body.senha;
+
+  if (typeof senha !== 'string' || senha.length === 0) {
+    throw new AppError(
+      'CAMPO_OBRIGATORIO',
+      'Senha de confirmação é obrigatória.',
+      400,
+      [{ campo: 'senha', problema: 'Senha é obrigatória.' }]
+    );
+  }
+
+  const usuario = usuarioRepository.buscarPorId(usuarioId);
+
+  if (!usuario) {
+    throw new AppError('USUARIO_NAO_ENCONTRADO', 'Usuário não encontrado.', 404);
+  }
+
+  const senhaConfere = await compararHash(senha, usuario.senha_hash);
+
+  if (!senhaConfere) {
+    throw new AppError(
+      'CREDENCIAIS_INVALIDAS',
+      'Senha incorreta.',
+      401
+    );
+  }
+
+  // Exclusão atômica.
+  // SQLite com PRAGMA foreign_keys=ON cuida da cascata quando houver tabelas filhas.
+  const removido = usuarioRepository.excluir(usuarioId);
+
+  if (!removido) {
+    // Race condition extrema (usuário sumiu entre buscar e excluir)
+    throw new AppError('USUARIO_NAO_ENCONTRADO', 'Usuário não encontrado.', 404);
+  }
+}
+
 export default {
   criar,
   obterPerfil,
   atualizarPerfil,
   alterarSenha,
+  excluirConta,
 };

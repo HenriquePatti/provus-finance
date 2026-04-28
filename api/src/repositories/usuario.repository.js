@@ -105,6 +105,18 @@ export function atualizarSenhaHash(id, senhaHash) {
   return buscarPorId(id);
 }
 
+/**
+ * Exclui um usuário pelo ID.
+ *
+ * @param {number} id
+ * @returns {boolean} true se excluiu, false se ID não existia
+ */
+export function excluir(id) {
+  const stmt = db.prepare('DELETE FROM usuarios WHERE id = ?');
+  const resultado = stmt.run(id);
+  return resultado.changes > 0;
+}
+
 export default {
   inserir,
   buscarPorId,
@@ -112,4 +124,5 @@ export default {
   emailExiste,
   atualizarDados,
   atualizarSenhaHash,
+  excluir,
 };
