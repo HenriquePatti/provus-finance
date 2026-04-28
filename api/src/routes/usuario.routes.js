@@ -171,4 +171,43 @@ router.put('/me/senha', authMiddleware, usuarioController.alterarSenha);
  */
 router.post('/', usuarioController.criar);
 
+/**
+ * @swagger
+ * /api/usuarios/me:
+ *   delete:
+ *     tags: [Usuários]
+ *     summary: Exclui a conta do usuário autenticado
+ *     description: |
+ *       Remove permanentemente a conta do usuário autenticado.
+ *       Exige confirmação de senha no body por segurança.
+ *
+ *       **Após exclusão:**
+ *       - Token JWT antigo torna-se inválido (usuário não existe mais)
+ *       - E-mail volta a ficar disponível para novo cadastro
+ *       - Operação é atômica (transação única)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [senha]
+ *             properties:
+ *               senha:
+ *                 type: string
+ *                 format: password
+ *                 description: Senha atual do usuário (confirmação obrigatória)
+ *                 example: "SenhaForte1"
+ *     responses:
+ *       204:
+ *         description: Conta excluída com sucesso (sem body)
+ *       400:
+ *         description: Senha de confirmação ausente (CAMPO_OBRIGATORIO)
+ *       401:
+ *         description: Token ausente/inválido OU senha incorreta (CREDENCIAIS_INVALIDAS)
+ */
+router.delete('/me', authMiddleware, usuarioController.excluirConta);
+
 export default router;
