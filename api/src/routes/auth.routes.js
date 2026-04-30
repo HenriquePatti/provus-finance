@@ -5,6 +5,34 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     LoginResponse:
+ *       type: object
+ *       required: [token, usuario]
+ *       properties:
+ *         token:
+ *           type: string
+ *           description: "JWT assinado com payload { sub, email, iat, exp }. Válido por 24h (configurável via JWT_EXPIRES_IN)."
+ *           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *         usuario:
+ *           type: object
+ *           required: [id, nome, email]
+ *           properties:
+ *             id:
+ *               type: integer
+ *               example: 1
+ *             nome:
+ *               type: string
+ *               example: "Ana Martins"
+ *             email:
+ *               type: string
+ *               format: email
+ *               example: "ana@provus.com"
+ */
+
+/**
+ * @swagger
  * /api/auth/login:
  *   post:
  *     tags: [Autenticação]
@@ -41,67 +69,19 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: JWT assinado, válido por 24h
- *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *                 usuario:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     nome:
- *                       type: string
- *                       example: "Ana Martins"
- *                     email:
- *                       type: string
- *                       format: email
- *                       example: "ana@provus.com"
+ *               $ref: '#/components/schemas/LoginResponse'
  *       400:
- *         description: Campos obrigatórios ausentes ou JSON malformado
+ *         description: Campos obrigatórios ausentes ou JSON malformado (CAMPO_OBRIGATORIO ou FORMATO_INVALIDO)
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 erro:
- *                   type: object
- *                   properties:
- *                     codigo:
- *                       type: string
- *                       enum: [CAMPO_OBRIGATORIO, FORMATO_INVALIDO]
- *                       example: "CAMPO_OBRIGATORIO"
- *                     mensagem:
- *                       type: string
- *                       example: "Um ou mais campos obrigatórios não foram informados."
- *                     detalhes:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           campo:
- *                             type: string
- *                           problema:
- *                             type: string
+ *               $ref: '#/components/schemas/Erro'
  *       401:
- *         description: Credenciais inválidas (e-mail não cadastrado ou senha incorreta)
+ *         description: Credenciais inválidas — mesma resposta para e-mail inexistente e senha incorreta (CREDENCIAIS_INVALIDAS)
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 erro:
- *                   type: object
- *                   properties:
- *                     codigo:
- *                       type: string
- *                       example: "CREDENCIAIS_INVALIDAS"
- *                     mensagem:
- *                       type: string
- *                       example: "E-mail ou senha incorretos."
+ *               $ref: '#/components/schemas/Erro'
  */
 router.post('/login', authController.login);
 
