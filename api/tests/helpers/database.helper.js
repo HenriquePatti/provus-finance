@@ -16,10 +16,11 @@ export function limparBanco() {
   }
 
   // Ordem importa quando houver FKs (filho antes, pai depois)
-  // Por enquanto só temos usuarios
+  db.exec('DELETE FROM contas;');
   db.exec('DELETE FROM usuarios;');
 
   // Reseta auto-increment para IDs começarem do 1
+  db.exec("DELETE FROM sqlite_sequence WHERE name='contas';");
   db.exec("DELETE FROM sqlite_sequence WHERE name='usuarios';");
 }
 
