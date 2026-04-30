@@ -42,9 +42,12 @@ cd provus-finance/api
 npm install
 
 # Configurar ambiente
+# Mac/Linux:
 cp .env.example .env
+# Windows (cmd):
+# copy .env.example .env
 
-# Criar banco e popular categorias padrao
+# Criar banco e aplicar migrations (inclui 13 categorias padrao)
 npm run db:migrate
 
 # Iniciar a API

@@ -9,7 +9,7 @@
     "dev": "node --watch server.js",
     "test": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha",
     "test:watch": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha --watch",
-    "test:report": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha --reporter mochawesome --reporter-options reportDir=reports/mochawesome,reportFilename=provus-finance,html=true,json=true,charts=true,overwrite=true,timestamp=false && echo '' && echo '📊 Relatório gerado em: api/reports/mochawesome/provus-finance.html'",
+    "test:report": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha --reporter mochawesome --reporter-options reportDir=reports/mochawesome,reportFilename=provus-finance,html=true,json=true,charts=true,overwrite=true,timestamp=false && node -e \"console.log('Relatorio gerado em: api/reports/mochawesome/provus-finance.html')\"",
     "test:setup": "cross-env NODE_ENV=test node database/run-migrations.js",
     "db:migrate": "node database/run-migrations.js",
     "db:seed": "node database/run-seeds.js",
