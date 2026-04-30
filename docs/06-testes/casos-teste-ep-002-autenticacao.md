@@ -1,16 +1,16 @@
-# ✅ Casos de Teste — EP-002: Autenticação
+# Casos de Teste — EP-002: Autenticacao
 
-> Casos de teste do Épico 2, elaborados com base nas User Stories de autenticação e nas regras de negócio vigentes, mantendo rastreabilidade completa.
+> Casos de teste do Epico 2, elaborados com base nas User Stories de autenticacao e nas regras de negocio vigentes, mantendo rastreabilidade completa conforme ISO/IEC/IEEE 29119-3.
 
 ---
 
 ## 1. Objetivo
 
-Definir os cenários de teste do EP-002 para validar o login com JWT (`POST /api/auth/login`), o middleware de proteção de rotas e o tratamento dos cenários de token ausente, inválido ou expirado.
+Definir os cenarios de teste do EP-002 para validar o fluxo de autenticacao (login) via API.
 
 ---
 
-## 2. Referências
+## 2. Referencias
 
 - `docs/05-user-stories/ep-002-autenticacao.md`
 - `docs/02-regras-negocio/regras-usuario.md`
@@ -21,258 +21,200 @@ Definir os cenários de teste do EP-002 para validar o login com JWT (`POST /api
 
 ---
 
-## 3. Convenções
+## 3. Convencoes
 
 - **ID do caso:** `CT-EP002-USXXX-YY`
-- **Tipo:** API (automatizável) + execução manual complementar
-- **Rastreabilidade obrigatória:** `US` + `RU/RG`
+- **Tipo:** API (automatizavel) + execucao manual complementar
+- **Rastreabilidade obrigatoria:** `US` + `RU/RG`
 - **Formato esperado de erro:** `{"erro":{"codigo":"...","mensagem":"..."}}`
-- **Rota auxiliar para US-007/US-008:** quando não houver rota protegida real ainda implementada, os casos podem ser executados contra `GET /api/usuarios/me` (após US-002) ou contra rota auxiliar dedicada de testes do middleware.
 
 ---
 
 ## 4. Casos de teste
 
-### US-006 — Autenticar usuário (`POST /api/auth/login`)
+### US-006 — Autenticar usuario (`POST /api/auth/login`)
 
-#### CT-EP002-US006-01 — Login com credenciais válidas
-- **Rastreabilidade:** US-006, RU-021, RU-023, RU-024, RU-026, RG-001
-- **Prioridade:** Alta
-- **Pré-condições:** usuário cadastrado com `email` e `senha` conhecidos
-- **Passos:**
-  1. Enviar `POST /api/auth/login` com `email` e `senha` corretos.
-- **Resultado esperado:**
-  - HTTP `200`
-  - Body com `token` e `usuario`
-  - `usuario` contém `id`, `nome`, `email`
-  - sem `senha` ou `senha_hash`
+#### CT-EP002-US006-01 — Login com credenciais validas
 
-#### CT-EP002-US006-02 — Login com e-mail não cadastrado
-- **Rastreabilidade:** US-006, RU-022
-- **Prioridade:** Alta
-- **Pré-condições:** e-mail informado não existe na base
-- **Passos:**
-  1. Enviar requisição de login com `email` inexistente.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = CREDENCIAIS_INVALIDAS`
-  - mensagem genérica (não revela se o e-mail existe)
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-01 |
+| **Titulo** | Validar que o sistema autentica o usuario e retorna token JWT quando credenciais sao validas |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-021, RU-023, RU-024, RU-026, RG-001 |
+| **Pre-Condicoes** | - Usuario cadastrado no sistema com e-mail e senha conhecidos |
 
-#### CT-EP002-US006-03 — Login com senha incorreta
-- **Rastreabilidade:** US-006, RU-022, RU-026
-- **Prioridade:** Alta
-- **Pré-condições:** usuário cadastrado
-- **Passos:**
-  1. Enviar requisição de login com `email` correto e `senha` errada.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = CREDENCIAIS_INVALIDAS`
-  - resposta idêntica à do CT-EP002-US006-02
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com `email` e `senha` validos | HTTP `200` |
+| 2 | Inspecionar body da resposta | Body contem `token` (string JWT) e objeto `usuario` com `id`, `nome`, `email` |
 
-#### CT-EP002-US006-04 — Login sem campo email
-- **Rastreabilidade:** US-006, RU-021, RG-014
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição de login sem o campo `email`.
-- **Resultado esperado:**
-  - HTTP `400`
-  - erro de obrigatoriedade/validação para `email`
+| **Pos-Condicoes** | - Token JWT valido emitido e pronto para uso em rotas protegidas |
+
+---
+
+#### CT-EP002-US006-02 — Login com e-mail nao cadastrado
+
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-02 |
+| **Titulo** | Validar que o sistema rejeita login quando o e-mail informado nao esta cadastrado |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-022 |
+| **Pre-Condicoes** | - Nenhum usuario cadastrado com o e-mail informado |
+
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com e-mail nao cadastrado e senha qualquer | HTTP `401` com `erro.codigo = CREDENCIAIS_INVALIDAS` |
+
+| **Pos-Condicoes** | - Nenhum token emitido |
+
+---
+
+#### CT-EP002-US006-03 — Login com senha incorreta (resposta identica ao CT-02)
+
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-03 |
+| **Titulo** | Validar que o sistema rejeita login com senha incorreta retornando body identico ao cenario de e-mail inexistente |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-022, RU-026 |
+| **Pre-Condicoes** | - Usuario cadastrado no sistema com e-mail conhecido |
+
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com e-mail valido e senha incorreta | HTTP `401` com `erro.codigo = CREDENCIAIS_INVALIDAS` |
+| 2 | Comparar body da resposta com o body retornado no CT-EP002-US006-02 | Body e identico (mesma estrutura e codigo de erro), impedindo enumeracao de usuarios |
+
+| **Pos-Condicoes** | - Nenhum token emitido |
+
+---
+
+#### CT-EP002-US006-04 — Login sem campo e-mail
+
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-04 |
+| **Titulo** | Validar que o sistema rejeita login quando o campo email esta ausente |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-021, RG-014 |
+| **Pre-Condicoes** | - Nenhuma |
+
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` sem o campo `email` | HTTP `400` com `erro.codigo = CAMPO_OBRIGATORIO` |
+
+| **Pos-Condicoes** | - Nenhum token emitido |
+
+---
 
 #### CT-EP002-US006-05 — Login sem campo senha
-- **Rastreabilidade:** US-006, RU-021, RG-014
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição de login sem o campo `senha`.
-- **Resultado esperado:**
-  - HTTP `400`
-  - erro de obrigatoriedade/validação para `senha`
 
-#### CT-EP002-US006-06 — Body sem JSON válido
-- **Rastreabilidade:** US-006, RG-007
-- **Prioridade:** Média
-- **Passos:**
-  1. Enviar requisição de login com body em formato inválido (ex.: texto puro).
-- **Resultado esperado:**
-  - HTTP `400`
-  - `erro.codigo = FORMATO_INVALIDO`
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-05 |
+| **Titulo** | Validar que o sistema rejeita login quando o campo senha esta ausente |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-021, RG-014 |
+| **Pre-Condicoes** | - Nenhuma |
 
-#### CT-EP002-US006-07 — Payload do token contém os campos corretos
-- **Rastreabilidade:** US-006, RU-025, RG-013
-- **Prioridade:** Alta
-- **Pré-condições:** usuário cadastrado
-- **Passos:**
-  1. Realizar login com sucesso.
-  2. Decodificar o token retornado.
-- **Resultado esperado:**
-  - payload contém `sub`, `email`, `iat`, `exp`
-  - `sub` igual ao `id` do usuário
-  - `email` em minúsculas
-  - `exp - iat` corresponde à duração configurada (padrão 24h)
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` sem o campo `senha` | HTTP `400` com `erro.codigo = CAMPO_OBRIGATORIO` |
 
-#### CT-EP002-US006-08 — Login case-insensitive no e-mail
-- **Rastreabilidade:** US-006, RU-010, RG-020
-- **Prioridade:** Média
-- **Pré-condições:** usuário cadastrado com e-mail em minúsculas
-- **Passos:**
-  1. Enviar requisição de login com o mesmo e-mail em caixa alta.
-- **Resultado esperado:**
-  - HTTP `200`
-  - login bem-sucedido
-  - `email` no payload do token em minúsculas
-
-#### CT-EP002-US006-09 — Múltiplas sessões simultâneas
-- **Rastreabilidade:** US-006, RU-027
-- **Prioridade:** Média
-- **Pré-condições:** usuário cadastrado
-- **Passos:**
-  1. Realizar login.
-  2. Realizar novo login com as mesmas credenciais.
-  3. Usar ambos os tokens em rota protegida.
-- **Resultado esperado:**
-  - ambos os tokens válidos
-  - login mais recente não invalida o anterior
+| **Pos-Condicoes** | - Nenhum token emitido |
 
 ---
 
-### US-007 — Proteger rotas com JWT (middleware `authMiddleware`)
+#### CT-EP002-US006-06 — Login com body que nao e JSON valido
 
-#### CT-EP002-US007-01 — Acesso autorizado com token válido
-- **Rastreabilidade:** US-007, RG-008
-- **Prioridade:** Alta
-- **Pré-condições:** rota protegida disponível; token JWT válido
-- **Passos:**
-  1. Enviar requisição autenticada com header `Authorization: Bearer <token>`.
-- **Resultado esperado:**
-  - middleware libera a requisição
-  - handler da rota é executado normalmente
-  - resposta corresponde ao contrato da rota
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-06 |
+| **Titulo** | Validar que o sistema rejeita login quando o body da requisicao nao e um JSON valido |
+| **Prioridade** | Media |
+| **Rastreabilidade** | US-006, RG-007 |
+| **Pre-Condicoes** | - Nenhuma |
 
-#### CT-EP002-US007-02 — req.usuario populado a partir do payload
-- **Rastreabilidade:** US-007, RU-025
-- **Prioridade:** Alta
-- **Pré-condições:** token JWT válido
-- **Passos:**
-  1. Enviar requisição autenticada a uma rota cujo handler retorne ou utilize `req.usuario`.
-- **Resultado esperado:**
-  - `req.usuario.id` igual ao campo `sub` do token
-  - `req.usuario.email` igual ao campo `email` do token
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com body em formato nao-JSON (ex.: texto puro, XML) | HTTP `400` com `erro.codigo = FORMATO_INVALIDO` |
 
-#### CT-EP002-US007-03 — Tokens diferentes identificam usuários diferentes
-- **Rastreabilidade:** US-007, RG-012
-- **Prioridade:** Alta
-- **Pré-condições:** dois usuários distintos com tokens válidos
-- **Passos:**
-  1. Cada usuário envia requisição à mesma rota protegida com seu token.
-- **Resultado esperado:**
-  - cada `req.usuario` corresponde ao dono do respectivo token
-  - nenhum vazamento de identidade entre as requisições
-
-#### CT-EP002-US007-04 — Middleware reutilizável em múltiplas rotas
-- **Rastreabilidade:** US-007, RG-008
-- **Prioridade:** Média
-- **Pré-condições:** middleware aplicado em duas rotas distintas
-- **Passos:**
-  1. Enviar requisições autenticadas com o mesmo token às duas rotas.
-- **Resultado esperado:**
-  - ambas as rotas processam a requisição normalmente
-  - identidade do usuário é resolvida da mesma forma em cada uma
-
-#### CT-EP002-US007-05 — Acesso negado quando o header Authorization está ausente
-- **Rastreabilidade:** US-007, RG-009
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição a uma rota protegida sem o header `Authorization`.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_AUSENTE`
-  - handler da rota não é executado
+| **Pos-Condicoes** | - Nenhum token emitido |
 
 ---
 
-### US-008 — Tratar token ausente ou inválido (middleware `authMiddleware`)
+#### CT-EP002-US006-07 — Payload JWT contem campos obrigatorios com expiracao de ~24h
 
-#### CT-EP002-US008-01 — Header Authorization ausente
-- **Rastreabilidade:** US-008, RG-009
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição a uma rota protegida sem o header `Authorization`.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_AUSENTE`
-  - mensagem em português
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-07 |
+| **Titulo** | Validar que o payload do token JWT contem sub, email, iat e exp com expiracao de aproximadamente 24 horas |
+| **Prioridade** | Alta |
+| **Rastreabilidade** | US-006, RU-025, RG-013 |
+| **Pre-Condicoes** | - Usuario cadastrado no sistema com credenciais conhecidas |
 
-#### CT-EP002-US008-02 — Header Authorization sem prefixo "Bearer"
-- **Rastreabilidade:** US-008, RG-010
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição com header `Authorization` contendo apenas o token, sem o prefixo `Bearer`.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_INVALIDO`
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com credenciais validas | HTTP `200` com token JWT |
+| 2 | Decodificar o payload do token JWT (base64) | Payload contem campos `sub` (ID do usuario), `email`, `iat` (timestamp de emissao) e `exp` (timestamp de expiracao) |
+| 3 | Calcular diferenca entre `exp` e `iat` | Diferenca e de aproximadamente 24 horas (86400 segundos) |
 
-#### CT-EP002-US008-03 — Token malformado
-- **Rastreabilidade:** US-008, RG-010
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição com header `Authorization: Bearer <string-sem-estrutura-jwt>` (ex.: `abc.def`).
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_INVALIDO`
+| **Pos-Condicoes** | - Token JWT valido emitido e pronto para uso em rotas protegidas |
 
-#### CT-EP002-US008-04 — Token assinado com chave diferente
-- **Rastreabilidade:** US-008, RG-010, RG-006
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição com token JWT estruturalmente válido, mas assinado com chave secreta distinta da configurada.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_INVALIDO`
+---
 
-#### CT-EP002-US008-05 — Token expirado
-- **Rastreabilidade:** US-008, RG-011, RG-013
-- **Prioridade:** Alta
-- **Passos:**
-  1. Enviar requisição com token cujo `exp` já tenha passado.
-- **Resultado esperado:**
-  - HTTP `401`
-  - `erro.codigo = TOKEN_EXPIRADO`
+#### CT-EP002-US006-08 — Login com e-mail em caixa diferente (case-insensitive)
 
-#### CT-EP002-US008-06 — Estrutura padronizada do erro
-- **Rastreabilidade:** US-008, RG-041, RG-042
-- **Prioridade:** Média
-- **Passos:**
-  1. Provocar qualquer cenário de erro do middleware (CT-EP002-US008-01 a 05).
-  2. Inspecionar o body da resposta.
-- **Resultado esperado:**
-  - body segue `{"erro":{"codigo":"...","mensagem":"..."}}`
-  - `codigo` corresponde ao cenário (`TOKEN_AUSENTE`, `TOKEN_INVALIDO` ou `TOKEN_EXPIRADO`)
-  - `mensagem` em português
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-08 |
+| **Titulo** | Validar que o sistema autentica o usuario independentemente da caixa (maiuscula/minuscula) do e-mail |
+| **Prioridade** | Media |
+| **Rastreabilidade** | US-006, RU-010, RG-020 |
+| **Pre-Condicoes** | - Usuario cadastrado no sistema com e-mail em minusculas |
 
-#### CT-EP002-US008-07 — Erro retorna antes do handler da rota
-- **Rastreabilidade:** US-008, RG-008
-- **Prioridade:** Média
-- **Pré-condições:** handler da rota com efeito observável (ex.: leitura de banco)
-- **Passos:**
-  1. Provocar qualquer cenário de erro do middleware.
-  2. Verificar se o handler da rota foi acionado (logs, side effects, banco).
-- **Resultado esperado:**
-  - handler não é executado
-  - nenhum efeito colateral observável após o erro
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com e-mail em caixa mista (ex.: `User@Email.COM`) e senha correta | HTTP `200` com token JWT e dados do usuario |
+
+| **Pos-Condicoes** | - Token JWT valido emitido e pronto para uso em rotas protegidas |
+
+---
+
+#### CT-EP002-US006-09 — Multiplas sessoes geram tokens distintos
+
+| Campo | Valor |
+|---|---|
+| **ID** | CT-EP002-US006-09 |
+| **Titulo** | Validar que logins consecutivos do mesmo usuario geram tokens JWT distintos e todos permanecem validos |
+| **Prioridade** | Media |
+| **Rastreabilidade** | US-006, RU-027 |
+| **Pre-Condicoes** | - Usuario cadastrado no sistema com credenciais conhecidas |
+
+| Passo | Acao | Resultado Esperado |
+|---|---|---|
+| 1 | Enviar `POST /api/auth/login` com credenciais validas e armazenar o token retornado (token A) | HTTP `200` com token JWT |
+| 2 | Enviar `POST /api/auth/login` novamente com as mesmas credenciais e armazenar o token retornado (token B) | HTTP `200` com token JWT |
+| 3 | Comparar token A com token B | Tokens sao diferentes (strings distintas) |
+| 4 | Enviar `GET /api/usuarios/me` com token A | HTTP `200` — token A continua valido |
+| 5 | Enviar `GET /api/usuarios/me` com token B | HTTP `200` — token B tambem e valido |
+
+| **Pos-Condicoes** | - Ambos os tokens permanecem validos e funcionais para rotas protegidas |
 
 ---
 
 ## 5. Resumo de cobertura
 
-- **Total de casos:** 21
-- **Distribuição por US:**
-  - US-006: 9
-  - US-007: 5
-  - US-008: 7
+| User Story | Descricao | Quantidade de CTs |
+|---|---|---|
+| US-006 | Autenticar usuario (login) | 9 |
+| **Total** | | **9** |
 
 ---
 
-## 6. Próximos passos
+## 6. Proximos passos
 
-1. Classificar quais casos entram primeiro na automação (`tipo:testes`) por risco (login + token expirado/ausente como mínimos).
-2. Selecionar amostra crítica para execução manual exploratória com evidência (especialmente CT-EP002-US006-02 vs CT-EP002-US006-03 — verificar resposta idêntica para anti-enumeração).
-3. Evoluir para matriz de rastreabilidade de execução (`planejado`, `executado`, `aprovado`, `reprovado`).
+1. Classificar quais casos entram primeiro na automacao (`tipo:testes`) por risco.
+2. Selecionar amostra critica para execucao manual exploratoria com evidencia.
+3. Evoluir para matriz de rastreabilidade de execucao (`planejado`, `executado`, `aprovado`, `reprovado`).
