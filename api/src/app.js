@@ -8,6 +8,7 @@ import usuarioRoutes from './routes/usuario.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import contaRoutes from './routes/conta.routes.js';
 import categoriaRoutes from './routes/categoria.routes.js';
+import transacaoRoutes from './routes/transacao.routes.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/contas', contaRoutes);
 app.use('/api/categorias', categoriaRoutes);
+app.use('/api/transacoes', transacaoRoutes);
 
 // 404 para rotas não encontradas
 app.use((req, res) => {
