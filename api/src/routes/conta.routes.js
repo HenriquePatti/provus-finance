@@ -10,22 +10,32 @@ const router = Router();
  *   schemas:
  *     Conta:
  *       type: object
+ *       required: [id, usuarioId, nome, tipo, saldoInicial, ativo, criadoEm, atualizadoEm]
  *       properties:
  *         id:
  *           type: integer
+ *           readOnly: true
  *           example: 1
  *         usuarioId:
  *           type: integer
+ *           readOnly: true
  *           example: 1
  *         nome:
  *           type: string
+ *           minLength: 2
+ *           maxLength: 100
  *           example: "Nubank Pessoal"
  *         tipo:
  *           type: string
  *           enum: [corrente, poupanca, carteira_digital, dinheiro, investimento]
+ *           readOnly: true
+ *           description: Imutável após criação (RC-004)
  *           example: "corrente"
  *         saldoInicial:
  *           type: number
+ *           minimum: 0
+ *           readOnly: true
+ *           description: Imutável após criação (RC-005)
  *           example: 1000.50
  *         ativo:
  *           type: boolean
@@ -33,9 +43,11 @@ const router = Router();
  *         criadoEm:
  *           type: string
  *           format: date-time
+ *           readOnly: true
  *         atualizadoEm:
  *           type: string
  *           format: date-time
+ *           readOnly: true
  */
 
 /**
@@ -62,6 +74,8 @@ const router = Router();
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
  *                 example: "Nubank Pessoal"
  *               tipo:
  *                 type: string
@@ -71,6 +85,7 @@ const router = Router();
  *                 type: number
  *                 minimum: 0
  *                 default: 0
+ *                 description: Opcional. Padrão 0. Imutável após criação.
  *                 example: 1000.50
  *     responses:
  *       201:
@@ -155,6 +170,7 @@ router.get('/', authMiddleware, contaController.listar);
  *                   properties:
  *                     saldoCalculado:
  *                       type: number
+ *                       description: "saldoInicial + receitas - despesas"
  *                       example: 1200.75
  *       401:
  *         description: Token ausente, inválido ou expirado
@@ -191,6 +207,8 @@ router.get('/:id', authMiddleware, contaController.consultar);
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
  *                 example: "Nubank Conta Corrente"
  *     responses:
  *       200:
@@ -265,6 +283,7 @@ router.delete('/:id', authMiddleware, contaController.desativar);
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [contaId, nome, saldoCalculado]
  *               properties:
  *                 contaId:
  *                   type: integer
@@ -274,6 +293,7 @@ router.delete('/:id', authMiddleware, contaController.desativar);
  *                   example: "Nubank Pessoal"
  *                 saldoCalculado:
  *                   type: number
+ *                   description: "saldoInicial + receitas - despesas"
  *                   example: 1200.75
  *       401:
  *         description: Token ausente, inválido ou expirado

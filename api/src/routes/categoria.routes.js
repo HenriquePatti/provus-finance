@@ -10,34 +10,48 @@ const router = Router();
  *   schemas:
  *     Categoria:
  *       type: object
+ *       required: [id, nome, tipo, padrao, criadoEm, atualizadoEm]
  *       properties:
  *         id:
  *           type: integer
+ *           readOnly: true
  *           example: 1
  *         nome:
  *           type: string
+ *           minLength: 2
+ *           maxLength: 50
  *           example: "Alimentação"
  *         tipo:
  *           type: string
  *           enum: [receita, despesa, ambos]
+ *           readOnly: true
+ *           description: "Imutável após criação (RK-022). Determina compatibilidade com transações."
  *           example: "despesa"
  *         icone:
  *           type: string
  *           nullable: true
+ *           maxLength: 4
+ *           description: "Emoji opcional (máx. 4 caracteres)"
  *           example: "🍔"
  *         padrao:
  *           type: boolean
+ *           readOnly: true
+ *           description: "true = categoria do sistema (somente leitura). false = personalizada do usuário."
  *           example: true
  *         usuarioId:
  *           type: integer
  *           nullable: true
+ *           readOnly: true
+ *           description: "null para categorias padrão, ID do criador para personalizadas"
  *           example: null
  *         criadoEm:
  *           type: string
  *           format: date-time
+ *           readOnly: true
  *         atualizadoEm:
  *           type: string
  *           format: date-time
+ *           readOnly: true
  */
 
 /**
@@ -106,14 +120,20 @@ router.get('/', authMiddleware, categoriaController.listar);
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 50
+ *                 description: "Não pode conter apenas números (RK-017)"
  *                 example: "Jogos e Hobbies"
  *               tipo:
  *                 type: string
  *                 enum: [receita, despesa, ambos]
+ *                 description: "Imutável após criação (RK-022)"
  *                 example: "despesa"
  *               icone:
  *                 type: string
  *                 nullable: true
+ *                 maxLength: 4
+ *                 description: "Emoji opcional (máx. 4 caracteres). Envie null para remover."
  *                 example: "🎲"
  *     responses:
  *       201:
@@ -186,13 +206,18 @@ router.get('/:id', authMiddleware, categoriaController.consultar);
  *         application/json:
  *           schema:
  *             type: object
+ *             minProperties: 1
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 50
  *                 example: "Jogos"
  *               icone:
  *                 type: string
  *                 nullable: true
+ *                 maxLength: 4
+ *                 description: "Envie null para remover o ícone"
  *                 example: "🎮"
  *     responses:
  *       200:

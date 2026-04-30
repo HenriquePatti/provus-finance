@@ -6,6 +6,38 @@ const router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Usuario:
+ *       type: object
+ *       required: [id, nome, email, criadoEm, atualizadoEm]
+ *       properties:
+ *         id:
+ *           type: integer
+ *           readOnly: true
+ *           example: 1
+ *         nome:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: "Ana Martins"
+ *         email:
+ *           type: string
+ *           format: email
+ *           maxLength: 254
+ *           example: "ana@provus.com"
+ *         criadoEm:
+ *           type: string
+ *           format: date-time
+ *           readOnly: true
+ *         atualizadoEm:
+ *           type: string
+ *           format: date-time
+ *           readOnly: true
+ */
+
+/**
+ * @swagger
  * /api/usuarios/me:
  *   get:
  *     tags: [Usuários]
@@ -21,22 +53,7 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 1
- *                 nome:
- *                   type: string
- *                 email:
- *                   type: string
- *                   format: email
- *                 criadoEm:
- *                   type: string
- *                   format: date-time
- *                 atualizadoEm:
- *                   type: string
- *                   format: date-time
+ *               $ref: '#/components/schemas/Usuario'
  *       401:
  *         description: Token ausente, inválido ou expirado
  *       404:
@@ -59,12 +76,19 @@ const router = Router();
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
  *               email:
  *                 type: string
  *                 format: email
+ *                 maxLength: 254
  *     responses:
  *       200:
  *         description: Perfil atualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Usuario'
  *       400:
  *         description: VALIDACAO ou CORPO_VAZIO
  *       401:
@@ -97,9 +121,13 @@ router.put('/me', authMiddleware, usuarioController.atualizarPerfil);
  *               senhaAtual:
  *                 type: string
  *                 format: password
+ *                 description: Senha atual do usuário
  *               senhaNova:
  *                 type: string
  *                 format: password
+ *                 minLength: 8
+ *                 maxLength: 64
+ *                 description: "Mesmas regras do cadastro: min 1 maiúscula, 1 minúscula, 1 número"
  *     responses:
  *       200:
  *         description: Senha atualizada — body `{ mensagem }` apenas
@@ -135,14 +163,21 @@ router.put('/me/senha', authMiddleware, usuarioController.alterarSenha);
  *             properties:
  *               nome:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
+ *                 description: "Não pode conter apenas números (RU-019)"
  *                 example: "Ana Martins"
  *               email:
  *                 type: string
  *                 format: email
+ *                 maxLength: 254
  *                 example: "ana@provus.com"
  *               senha:
  *                 type: string
  *                 format: password
+ *                 minLength: 8
+ *                 maxLength: 64
+ *                 description: "Mínimo 1 maiúscula, 1 minúscula e 1 número"
  *                 example: "Senha123"
  *     responses:
  *       201:
@@ -150,24 +185,15 @@ router.put('/me/senha', authMiddleware, usuarioController.alterarSenha);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 nome:
- *                   type: string
- *                 email:
- *                   type: string
- *                 criadoEm:
- *                   type: string
- *                   format: date-time
- *                 atualizadoEm:
- *                   type: string
- *                   format: date-time
+ *               $ref: '#/components/schemas/Usuario'
  *       400:
- *         description: Dados inválidos
+ *         description: Dados inválidos (VALIDACAO ou CAMPO_OBRIGATORIO)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  *       409:
- *         description: E-mail já cadastrado
+ *         description: E-mail já cadastrado (EMAIL_JA_CADASTRADO)
  */
 router.post('/', usuarioController.criar);
 
