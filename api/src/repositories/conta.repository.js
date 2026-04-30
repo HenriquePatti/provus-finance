@@ -147,6 +147,7 @@ export function calcularSaldo(id) {
     return conta.saldo_inicial;
   }
 
+  // Transações armazenam valor em centavos (RT-016), converter para reais
   const resultado = db.prepare(`
     SELECT
       c.saldo_inicial,
@@ -160,7 +161,10 @@ export function calcularSaldo(id) {
 
   if (!resultado) return undefined;
 
-  return resultado.saldo_inicial + resultado.total_receitas - resultado.total_despesas;
+  const receitasReais = resultado.total_receitas / 100;
+  const despesasReais = resultado.total_despesas / 100;
+
+  return resultado.saldo_inicial + receitasReais - despesasReais;
 }
 
 export default {
