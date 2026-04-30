@@ -139,28 +139,50 @@ O projeto segue um fluxo profissional, com fases bem definidas:
 
 ---
 
-## 🚀 Como Executar *(em breve)*
+## 🚀 Como Executar
+
+**Pré-requisitos:** Node.js 20+
 
 ```bash
-# Clonar o repositório
-git clone https://github.com/seu-usuario/provus-finance.git
+# 1. Clonar o repositório
+git clone https://github.com/HenriquePatti/provus-finance.git
 cd provus-finance/api
 
-# Instalar dependências
+# 2. Instalar dependências
 npm install
 
-# Rodar migrations do banco
+# 3. Configurar variáveis de ambiente
+cp .env.example .env
+# Edite .env se necessário (JWT_SECRET, PORT, etc.)
+
+# 4. Criar o banco e rodar migrations
 npm run db:migrate
 
-# Popular dados iniciais
+# 5. Popular dados iniciais (opcional)
 npm run db:seed
 
-# Iniciar a API
+# 6. Iniciar a API
 npm start
 ```
 
 A API estará disponível em `http://localhost:3000`.
 Documentação Swagger em `http://localhost:3000/api-docs`.
+
+### Executar os testes
+
+```bash
+# Roda migrations do banco de teste + suite completa de testes
+npm test
+```
+
+### Resetar o banco de desenvolvimento
+
+```bash
+# Remove o banco, recria e roda seeds
+npm run db:reset
+```
+
+> Os scripts são compatíveis com **Mac, Linux e Windows**.
 
 ---
 
