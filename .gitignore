@@ -31,9 +31,10 @@ Thumbs.db
 *.swo
 *~
 
-# Cobertura de testes
+# Cobertura e relatórios de testes
 coverage/
 .nyc_output/
+api/reports/
 
 # Build
 dist/
