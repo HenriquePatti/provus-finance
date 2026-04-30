@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Provus Finance — Manual API Tests",
-    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.\n\n**US-004 — PUT /api/usuarios/me/senha**\nMesmo pré-requisito (cadastro CT-01 + login → `tokenAtual`). Corpo `senhaAtual` + `senhaNova` válidos segundo regras de cadastro (**EP-001/US-004**).",
+    "description": "Coleção de testes **manuais e exploratórios** da API do Provus Finance.\n\n## Referências\n- `docs/06-testes/casos-teste-ep-001-usuarios.md`\n- `docs/06-testes/casos-teste-ep-002-autenticacao.md`\n- `docs/06-testes/casos-teste-ep-003-contas.md`\n- `docs/06-testes/casos-teste-ep-004-categorias.md`\n- `docs/06-testes/casos-teste-ep-005-transacoes.md`\n- `docs/05-user-stories/ep-001-usuarios.md`\n- `docs/05-user-stories/ep-002-autenticacao.md`\n- `docs/05-user-stories/ep-003-contas.md`\n- `docs/05-user-stories/ep-004-categorias.md`\n- `docs/05-user-stories/ep-005-transacoes.md`\n- `docs/06-testes/estrategia-testes.md`\n\n## Pré-requisitos\n1. API rodando: `cd api && npm start` (porta 3000 por padrão).\n2. Banco de desenvolvimento aplicado: `cd api && npm run db:migrate`.\n3. Para reexecutar a coleção do zero, resetar o banco: `cd api && npm run db:reset`.\n\n## Dependências entre pastas\n- A US-006 (login) depende do CT-01 da US-001 (cria o usuário `ana.souza@teste.local`). Rode primeiro a US-001 → CT-01 e depois execute a US-006.\n\n## Variáveis\n- `baseUrl` (definida na coleção): `http://localhost:3000`. Pode ser sobrescrita por environment.\n\n**US-002 — GET /api/usuarios/me**\nCadastro + login antes; JWT em `tokenAtual` / `tokenJWTExpirado` conforme pasta EP-001 → US-002.\n\n**US-003 — PUT /api/usuarios/me**\nCadastro + login; variáveis `tokenAtual` / `emailOutroUser` onde indicado.\n\n**US-004 — PUT /api/usuarios/me/senha**\nMesmo pré-requisito (cadastro CT-01 + login → `tokenAtual`). Corpo `senhaAtual` + `senhaNova` válidos segundo regras de cadastro (**EP-001/US-004**).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1429,6 +1429,2016 @@
           ]
         }
       ]
+    },
+    {
+      "name": "EP-003 — Contas",
+      "item": [
+        {
+          "name": "US-009 — Criar conta (POST /api/contas)",
+          "description": "Cenários manuais do endpoint `POST /api/contas` cobrindo os 6 casos de teste.\n\n**Pré-condições:** JWT válido em `tokenAtual` (login via US-006 CT-01).\n\n**Dependência:** CT-01 cria a conta que será reutilizada nos demais endpoints de contas.",
+          "item": [
+            {
+              "name": "01 — Criar conta corrente com dados válidos",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nubank\",\n  \"tipo\": \"corrente\",\n  \"saldoInicial\": 1000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-01\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/contas` com `nome`, `tipo` e `saldoInicial` válidos.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body com `id`, `nome`, `tipo`, `saldoInicial`, `ativo`, `criadoEm`, `atualizadoEm`\n- Copiar o `id` retornado para a variável `contaId`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Criar conta sem saldoInicial (padrão 0)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Carteira\",\n  \"tipo\": \"carteira\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-02\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/contas` sem o campo `saldoInicial`.\n\n**Resultado esperado:**\n- HTTP `201`\n- `saldoInicial` deve ser `0` no body de resposta."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Criar conta sem nome",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"corrente\",\n  \"saldoInicial\": 500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-03\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/contas` sem o campo `nome`.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando campo `nome` obrigatório."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Tipo inválido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Conta Teste\",\n  \"tipo\": \"invalido\",\n  \"saldoInicial\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-04\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/contas` com `tipo` não reconhecido (`invalido`).\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando tipo inválido."
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Saldo inicial negativo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Conta Negativa\",\n  \"tipo\": \"corrente\",\n  \"saldoInicial\": -500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-05\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/contas` com `saldoInicial` negativo.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando saldo inicial inválido."
+              },
+              "response": []
+            },
+            {
+              "name": "06 — Sem token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nubank\",\n  \"tipo\": \"corrente\",\n  \"saldoInicial\": 1000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US009-06\n**US:** US-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `POST /api/contas` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-010 — Listar contas (GET /api/contas)",
+          "description": "Cenários manuais do endpoint `GET /api/contas`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Pelo menos uma conta criada (US-009 CT-01).",
+          "item": [
+            {
+              "name": "01 — Listar contas ativas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US010-01\n**US:** US-010\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Pelo menos uma conta criada (US-009 CT-01).\n\n**Passos:**\n1. Enviar `GET /api/contas`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array com as contas ativas do usuário."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Filtrar por tipo (corrente)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas?tipo=corrente",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ],
+                  "query": [
+                    {
+                      "key": "tipo",
+                      "value": "corrente"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US010-02\n**US:** US-010\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Pelo menos uma conta do tipo `corrente` criada.\n\n**Passos:**\n1. Enviar `GET /api/contas?tipo=corrente`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas contas com `tipo: \"corrente\"`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Listar contas inativas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas?ativo=false",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ],
+                  "query": [
+                    {
+                      "key": "ativo",
+                      "value": "false"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US010-03\n**US:** US-010\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Pelo menos uma conta desativada (executar US-013 CT-01 antes).\n\n**Passos:**\n1. Enviar `GET /api/contas?ativo=false`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas contas com `ativo: false`."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Sem token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US010-04\n**US:** US-010\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `GET /api/contas` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-011 — Consultar conta (GET /api/contas/:id)",
+          "description": "Cenários manuais do endpoint `GET /api/contas/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Conta criada (US-009 CT-01) com `id` em `contaId`.",
+          "item": [
+            {
+              "name": "01 — Consultar conta existente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US011-01\n**US:** US-011\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente (US-009 CT-01).\n\n**Passos:**\n1. Enviar `GET /api/contas/1`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `id`, `nome`, `tipo`, `saldoInicial`, `saldoCalculado`, `ativo`, `criadoEm`, `atualizadoEm`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — ID inexistente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US011-02\n**US:** US-011\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/contas/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando conta não encontrada."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Sem token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US011-03\n**US:** US-011\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `GET /api/contas/1` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-012 — Atualizar conta (PUT /api/contas/:id)",
+          "description": "Cenários manuais do endpoint `PUT /api/contas/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Conta criada (US-009 CT-01).",
+          "item": [
+            {
+              "name": "01 — Atualizar nome",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nubank Principal\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US012-01\n**US:** US-012\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n\n**Passos:**\n1. Enviar `PUT /api/contas/1` com novo `nome`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `nome` atualizado."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Enviar tipo e saldoInicial (devem ser ignorados)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nubank Atualizado\",\n  \"tipo\": \"poupanca\",\n  \"saldoInicial\": 9999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US012-02\n**US:** US-012\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n\n**Passos:**\n1. Enviar `PUT /api/contas/1` com `tipo` e `saldoInicial` diferentes dos originais.\n\n**Resultado esperado:**\n- HTTP `200`\n- `tipo` e `saldoInicial` devem permanecer inalterados (campos ignorados pelo endpoint)."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Nome vazio",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US012-03\n**US:** US-012\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n\n**Passos:**\n1. Enviar `PUT /api/contas/1` com `nome` vazio.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando nome obrigatório."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — ID inexistente",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Conta Fantasma\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US012-04\n**US:** US-012\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `PUT /api/contas/99999` com `nome` válido.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando conta não encontrada."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-013 — Desativar conta (DELETE /api/contas/:id)",
+          "description": "Cenários manuais do endpoint `DELETE /api/contas/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Conta criada (US-009 CT-01).",
+          "item": [
+            {
+              "name": "01 — Desativar conta existente",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/{{contaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "{{contaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US013-01\n**US:** US-013\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta existente com `id` em `contaId`.\n\n**Passos:**\n1. Enviar `DELETE /api/contas/{{contaId}}`.\n\n**Resultado esperado:**\n- HTTP `204`\n- Sem body de resposta."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — ID inexistente",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US013-02\n**US:** US-013\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `DELETE /api/contas/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando conta não encontrada."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Sem token",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US013-03\n**US:** US-013\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `DELETE /api/contas/1` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-014 — Consultar saldo (GET /api/contas/:id/saldo)",
+          "description": "Cenários manuais do endpoint `GET /api/contas/:id/saldo`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Conta criada (US-009 CT-01).",
+          "item": [
+            {
+              "name": "01 — Consultar saldo de conta existente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/1/saldo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "1",
+                    "saldo"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US014-01\n**US:** US-014\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n\n**Passos:**\n1. Enviar `GET /api/contas/1/saldo`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `contaId`, `nome`, `saldoCalculado`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — ID inexistente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/contas/99999/saldo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "contas",
+                    "99999",
+                    "saldo"
+                  ]
+                },
+                "description": "**Caso:** CT-EP003-US014-02\n**US:** US-014\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/contas/99999/saldo`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando conta não encontrada."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EP-004 — Categorias",
+      "item": [
+        {
+          "name": "US-015 — Listar categorias (GET /api/categorias)",
+          "description": "Cenários manuais do endpoint `GET /api/categorias`.\n\n**Pré-condições:** JWT válido em `tokenAtual`.",
+          "item": [
+            {
+              "name": "01 — Listar todas (padrão + personalizadas)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US015-01\n**US:** US-015\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/categorias`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo categorias padrão e personalizadas do usuário."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Filtrar por tipo=despesa",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias?tipo=despesa",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ],
+                  "query": [
+                    {
+                      "key": "tipo",
+                      "value": "despesa"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US015-02\n**US:** US-015\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/categorias?tipo=despesa`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas categorias com `tipo: \"despesa\"`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Filtrar por origem=padrao",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias?origem=padrao",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ],
+                  "query": [
+                    {
+                      "key": "origem",
+                      "value": "padrao"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US015-03\n**US:** US-015\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/categorias?origem=padrao`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas categorias com `padrao: true`."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Sem token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US015-04\n**US:** US-015\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `GET /api/categorias` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-016 — Criar categoria (POST /api/categorias)",
+          "description": "Cenários manuais do endpoint `POST /api/categorias`.\n\n**Pré-condições:** JWT válido em `tokenAtual`.\n\n**Dependência:** CT-01 cria a categoria personalizada reutilizada em US-017, US-018, US-019.",
+          "item": [
+            {
+              "name": "01 — Criar categoria válida",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Pets\",\n  \"tipo\": \"despesa\",\n  \"icone\": \"\uD83D\uDC3E\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US016-01\n**US:** US-016\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/categorias` com `nome`, `tipo` e `icone` válidos.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body com `id`, `nome`, `tipo`, `icone`, `padrao: false`\n- Copiar o `id` retornado para a variável `categoriaPersonalizadaId`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Criar sem ícone",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Assinaturas\",\n  \"tipo\": \"despesa\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US016-02\n**US:** US-016\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/categorias` sem o campo `icone`.\n\n**Resultado esperado:**\n- HTTP `201`\n- `icone` deve ser `null` no body de resposta."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Sem nome",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"despesa\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US016-03\n**US:** US-016\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/categorias` sem o campo `nome`.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando campo `nome` obrigatório."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Tipo inválido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Categoria Teste\",\n  \"tipo\": \"invalido\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US016-04\n**US:** US-016\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/categorias` com `tipo` não reconhecido (`invalido`).\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando tipo inválido."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-017 — Consultar categoria (GET /api/categorias/:id)",
+          "description": "Cenários manuais do endpoint `GET /api/categorias/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Categoria personalizada criada (US-016 CT-01) com `id` em `categoriaPersonalizadaId`.",
+          "item": [
+            {
+              "name": "01 — Consultar categoria padrão",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US017-01\n**US:** US-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria padrão com `id` 1 existente.\n\n**Passos:**\n1. Enviar `GET /api/categorias/1`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `padrao: true`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Consultar personalizada própria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/{{categoriaPersonalizadaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "{{categoriaPersonalizadaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US017-02\n**US:** US-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria personalizada criada (US-016 CT-01), `id` em `categoriaPersonalizadaId`.\n\n**Passos:**\n1. Enviar `GET /api/categorias/{{categoriaPersonalizadaId}}`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `padrao: false`, dados da categoria criada."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — ID inexistente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US017-03\n**US:** US-017\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/categorias/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando categoria não encontrada."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-018 — Atualizar categoria (PUT /api/categorias/:id)",
+          "description": "Cenários manuais do endpoint `PUT /api/categorias/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Categoria personalizada criada (US-016 CT-01).",
+          "item": [
+            {
+              "name": "01 — Atualizar nome e ícone",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Animais de Estimação\",\n  \"icone\": \"\uD83D\uDC36\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/{{categoriaPersonalizadaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "{{categoriaPersonalizadaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US018-01\n**US:** US-018\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria personalizada criada (US-016 CT-01), `id` em `categoriaPersonalizadaId`.\n\n**Passos:**\n1. Enviar `PUT /api/categorias/{{categoriaPersonalizadaId}}` com novo `nome` e `icone`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `nome` e `icone` atualizados."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Tentar editar categoria padrão",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Nome Alterado\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US018-02\n**US:** US-018\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria padrão com `id` 1.\n\n**Passos:**\n1. Enviar `PUT /api/categorias/1` tentando alterar o `nome` de uma categoria padrão.\n\n**Resultado esperado:**\n- HTTP `403`\n- `erro.codigo = ACESSO_NEGADO`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Body vazio",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/{{categoriaPersonalizadaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "{{categoriaPersonalizadaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US018-03\n**US:** US-018\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria personalizada criada.\n\n**Passos:**\n1. Enviar `PUT /api/categorias/{{categoriaPersonalizadaId}}` com body vazio `{}`.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando que ao menos um campo deve ser enviado."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Remover ícone (icone: null)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"icone\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/{{categoriaPersonalizadaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "{{categoriaPersonalizadaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US018-04\n**US:** US-018\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria personalizada com ícone definido.\n\n**Passos:**\n1. Enviar `PUT /api/categorias/{{categoriaPersonalizadaId}}` com `icone: null`.\n\n**Resultado esperado:**\n- HTTP `200`\n- `icone` deve ser `null` no body de resposta."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-019 — Excluir categoria (DELETE /api/categorias/:id)",
+          "description": "Cenários manuais do endpoint `DELETE /api/categorias/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Categoria personalizada criada (US-016 CT-01) sem transações vinculadas.",
+          "item": [
+            {
+              "name": "01 — Excluir personalizada sem transações",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/{{categoriaPersonalizadaId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "{{categoriaPersonalizadaId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US019-01\n**US:** US-019\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria personalizada criada sem transações vinculadas, `id` em `categoriaPersonalizadaId`.\n\n**Passos:**\n1. Enviar `DELETE /api/categorias/{{categoriaPersonalizadaId}}`.\n\n**Resultado esperado:**\n- HTTP `204`\n- Sem body de resposta."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Tentar excluir padrão",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US019-02\n**US:** US-019\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria padrão com `id` 1.\n\n**Passos:**\n1. Enviar `DELETE /api/categorias/1`.\n\n**Resultado esperado:**\n- HTTP `403`\n- `erro.codigo = ACESSO_NEGADO`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — ID inexistente",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP004-US019-03\n**US:** US-019\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `DELETE /api/categorias/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando categoria não encontrada."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EP-005 — Transações",
+      "item": [
+        {
+          "name": "US-020 — Registrar transação (POST /api/transacoes)",
+          "description": "Cenários manuais do endpoint `POST /api/transacoes`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Conta criada (US-009 CT-01). Categorias padrão disponíveis.\n\n**Dependência:** CT-01 cria a transação reutilizada em US-022, US-023, US-024.",
+          "item": [
+            {
+              "name": "01 — Criar despesa válida",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"despesa\",\n  \"valor\": 150.50,\n  \"descricao\": \"Supermercado Extra\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 1,\n  \"categoriaId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-01\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n- Categoria com `id` 1 existente (padrão, tipo despesa).\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `tipo`, `valor`, `descricao`, `dataTransacao`, `contaId` e `categoriaId` válidos.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body com `id`, `tipo`, `valor`, `descricao`, `dataTransacao`, `contaId`, `categoriaId`, `criadoEm`, `atualizadoEm`\n- Copiar o `id` retornado para a variável `transacaoId`."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Criar receita válida",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"receita\",\n  \"valor\": 3000,\n  \"descricao\": \"Salário\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 1,\n  \"categoriaId\": 10\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-02\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Conta com `id` 1 existente.\n- Categoria com `id` 10 existente (padrão, tipo receita).\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `tipo: \"receita\"`.\n\n**Resultado esperado:**\n- HTTP `201`\n- Body com os dados da transação de receita criada."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Valor zero",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"despesa\",\n  \"valor\": 0,\n  \"descricao\": \"Transação zerada\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 1,\n  \"categoriaId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-03\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `valor: 0`.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando valor deve ser maior que zero."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Tipo inválido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"invalido\",\n  \"valor\": 100,\n  \"descricao\": \"Teste tipo\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 1,\n  \"categoriaId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-04\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `tipo` não reconhecido (`invalido`).\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando tipo inválido."
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Conta inexistente",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"despesa\",\n  \"valor\": 100,\n  \"descricao\": \"Conta fantasma\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 99999,\n  \"categoriaId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-05\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `contaId: 99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando conta não encontrada."
+              },
+              "response": []
+            },
+            {
+              "name": "06 — Categoria incompatível",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipo\": \"despesa\",\n  \"valor\": 100,\n  \"descricao\": \"Categoria errada\",\n  \"dataTransacao\": \"2026-04-30\",\n  \"contaId\": 1,\n  \"categoriaId\": 10\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US020-06\n**US:** US-020\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Categoria com `id` 10 é do tipo `receita`.\n\n**Passos:**\n1. Enviar `POST /api/transacoes` com `tipo: \"despesa\"` e `categoriaId: 10` (categoria de receita).\n\n**Resultado esperado:**\n- HTTP `422`\n- Erro indicando incompatibilidade entre tipo da transação e tipo da categoria."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-021 — Listar transações (GET /api/transacoes)",
+          "description": "Cenários manuais do endpoint `GET /api/transacoes`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Pelo menos uma transação criada (US-020 CT-01).",
+          "item": [
+            {
+              "name": "01 — Listar todas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US021-01\n**US:** US-021\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Pelo menos uma transação criada.\n\n**Passos:**\n1. Enviar `GET /api/transacoes`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array com as transações do usuário."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Filtrar por tipo=despesa",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes?tipo=despesa",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "tipo",
+                      "value": "despesa"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US021-02\n**US:** US-021\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Pelo menos uma transação do tipo `despesa`.\n\n**Passos:**\n1. Enviar `GET /api/transacoes?tipo=despesa`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas transações com `tipo: \"despesa\"`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Filtrar por período",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes?dataInicio=2026-04-01&dataFim=2026-04-30",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "dataInicio",
+                      "value": "2026-04-01"
+                    },
+                    {
+                      "key": "dataFim",
+                      "value": "2026-04-30"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US021-03\n**US:** US-021\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transações criadas dentro do período de abril/2026.\n\n**Passos:**\n1. Enviar `GET /api/transacoes?dataInicio=2026-04-01&dataFim=2026-04-30`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas transações dentro do período especificado."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Sem token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US021-04\n**US:** US-021\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. Enviar `GET /api/transacoes` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-022 — Consultar transação (GET /api/transacoes/:id)",
+          "description": "Cenários manuais do endpoint `GET /api/transacoes/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Transação criada (US-020 CT-01) com `id` em `transacaoId`.",
+          "item": [
+            {
+              "name": "01 — Consultar existente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US022-01\n**US:** US-022\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com `id` 1 existente (US-020 CT-01).\n\n**Passos:**\n1. Enviar `GET /api/transacoes/1`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com os dados completos da transação."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — ID inexistente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US022-02\n**US:** US-022\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/transacoes/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando transação não encontrada."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-023 — Atualizar transação (PUT /api/transacoes/:id)",
+          "description": "Cenários manuais do endpoint `PUT /api/transacoes/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Transação criada (US-020 CT-01).",
+          "item": [
+            {
+              "name": "01 — Atualizar valor e descrição",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"valor\": 200.75,\n  \"descricao\": \"Supermercado Extra (corrigido)\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US023-01\n**US:** US-023\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com `id` 1 existente.\n\n**Passos:**\n1. Enviar `PUT /api/transacoes/1` com novo `valor` e `descricao`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Body com `valor` e `descricao` atualizados."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Alterar categoriaId",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoriaId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US023-02\n**US:** US-023\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com `id` 1 existente (tipo despesa).\n- Categoria `id` 2 compatível (tipo despesa).\n\n**Passos:**\n1. Enviar `PUT /api/transacoes/1` com `categoriaId: 2`.\n\n**Resultado esperado:**\n- HTTP `200`\n- `categoriaId` atualizado para 2."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Body vazio",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US023-03\n**US:** US-023\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com `id` 1 existente.\n\n**Passos:**\n1. Enviar `PUT /api/transacoes/1` com body vazio `{}`.\n\n**Resultado esperado:**\n- HTTP `400`\n- Erro de validação indicando que ao menos um campo deve ser enviado."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Categoria incompatível",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoriaId\": 10\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "1"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US023-04\n**US:** US-023\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com `id` 1 existente (tipo despesa).\n- Categoria `id` 10 é do tipo `receita`.\n\n**Passos:**\n1. Enviar `PUT /api/transacoes/1` com `categoriaId: 10` (tipo receita, transação é despesa).\n\n**Resultado esperado:**\n- HTTP `422`\n- Erro indicando incompatibilidade entre tipo da transação e tipo da categoria."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-024 — Excluir transação (DELETE /api/transacoes/:id)",
+          "description": "Cenários manuais do endpoint `DELETE /api/transacoes/:id`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Transação criada (US-020 CT-01).",
+          "item": [
+            {
+              "name": "01 — Excluir transação existente",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/{{transacaoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "{{transacaoId}}"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US024-01\n**US:** US-024\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação existente com `id` em `transacaoId`.\n\n**Passos:**\n1. Enviar `DELETE /api/transacoes/{{transacaoId}}`.\n\n**Resultado esperado:**\n- HTTP `204`\n- Sem body de resposta."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — ID inexistente",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes",
+                    "99999"
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US024-02\n**US:** US-024\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `DELETE /api/transacoes/99999`.\n\n**Resultado esperado:**\n- HTTP `404`\n- Erro indicando transação não encontrada."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "US-025 — Buscar por descrição (GET /api/transacoes?q=)",
+          "description": "Cenários manuais de busca textual no endpoint `GET /api/transacoes` via query parameter `q`.\n\n**Pré-condições:** JWT válido em `tokenAtual`. Transações criadas (US-020 CT-01 e CT-02).",
+          "item": [
+            {
+              "name": "01 — Buscar \"supermercado\"",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes?q=supermercado",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "supermercado"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US025-01\n**US:** US-025\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação com descrição contendo \"Supermercado\" (US-020 CT-01).\n\n**Passos:**\n1. Enviar `GET /api/transacoes?q=supermercado`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo transações cuja descrição contém \"supermercado\" (case-insensitive)."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Buscar com filtro combinado",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes?q=sal&tipo=receita",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "sal"
+                    },
+                    {
+                      "key": "tipo",
+                      "value": "receita"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US025-02\n**US:** US-025\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n- Transação de receita com descrição contendo \"Sal\" (US-020 CT-02 — \"Salário\").\n\n**Passos:**\n1. Enviar `GET /api/transacoes?q=sal&tipo=receita`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array contendo apenas transações do tipo `receita` cuja descrição contém \"sal\"."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Buscar sem resultados",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transacoes?q=xyzinexistente",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "xyzinexistente"
+                    }
+                  ]
+                },
+                "description": "**Caso:** CT-EP005-US025-03\n**US:** US-025\n**Prioridade:** Média\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. Enviar `GET /api/transacoes?q=xyzinexistente`.\n\n**Resultado esperado:**\n- HTTP `200`\n- Array vazio `[]`."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
     }
   ],
   "variable": [
@@ -1454,6 +3464,24 @@
       "value": "",
       "type": "string",
       "description": "E-mail de um segundo usuário já cadastrado (CT-03)."
+    },
+    {
+      "key": "contaId",
+      "value": "",
+      "type": "string",
+      "description": "ID da conta criada (US-009 CT-01), reutilizado nos demais endpoints de contas."
+    },
+    {
+      "key": "categoriaPersonalizadaId",
+      "value": "",
+      "type": "string",
+      "description": "ID da categoria personalizada criada (US-016 CT-01), reutilizado em US-017, US-018, US-019."
+    },
+    {
+      "key": "transacaoId",
+      "value": "",
+      "type": "string",
+      "description": "ID da transação criada (US-020 CT-01), reutilizado em US-022, US-023, US-024."
     }
   ]
 }
