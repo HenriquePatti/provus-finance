@@ -1,0 +1,6 @@
+# Configuração do Mocha — Provus Finance API
+# Referência: https://mochajs.org/#configuring-mocha-nodejs
+
+timeout: 10000
+spec: tests/api/**/*.test.js
+recursive: true

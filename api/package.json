@@ -7,8 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha tests/api/**/*.test.js --timeout 10000",
-    "test:watch": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha tests/api/**/*.test.js --timeout 10000 --watch",
+    "test": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha",
+    "test:watch": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha --watch",
+    "test:report": "cross-env NODE_ENV=test node database/run-migrations.js && cross-env NODE_ENV=test mocha --reporter mochawesome --reporter-options reportDir=reports/mochawesome,reportFilename=provus-finance,html=true,json=true,charts=true,overwrite=true,timestamp=false && echo '' && echo '📊 Relatório gerado em: api/reports/mochawesome/provus-finance.html'",
     "test:setup": "cross-env NODE_ENV=test node database/run-migrations.js",
     "db:migrate": "node database/run-migrations.js",
     "db:seed": "node database/run-seeds.js",
@@ -41,6 +42,9 @@
     "chai": "^5.1.1",
     "cross-env": "^10.1.0",
     "mocha": "^10.7.3",
+    "mochawesome": "^7.1.4",
+    "mochawesome-merge": "^5.1.1",
+    "mochawesome-report-generator": "^6.3.2",
     "supertest": "^7.0.0"
   }
 }
