@@ -1,246 +1,284 @@
 <div align="center">
 
-# 💰 Provus Finance
+# Provus Finance
 
-### Aplicação de Gestão Financeira Pessoal
+### API REST de Gestao Financeira Pessoal
 
-*Projeto de portfólio focado em testes de software, demonstrando o ciclo completo de desenvolvimento com qualidade — da documentação de requisitos à automação de testes de API.*
+*Projeto de portfolio focado em testes de software, demonstrando o ciclo completo de desenvolvimento com qualidade — da documentacao de requisitos a automacao de testes de API.*
 
-![Status](https://img.shields.io/badge/status-em%20planejamento-yellow)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![Status](https://img.shields.io/badge/fase%201-conclu%C3%ADda-brightgreen)
+![Testes](https://img.shields.io/badge/testes-164%20passing-brightgreen)
+![Endpoints](https://img.shields.io/badge/endpoints-22-blue)
 ![Node](https://img.shields.io/badge/node-20%2B-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 </div>
 
 ---
 
-## 📖 Sobre o Projeto
+## Sobre o Projeto
 
-**Provus Finance** é uma aplicação web de gestão financeira pessoal que permite ao usuário controlar receitas, despesas, contas bancárias, categorias e orçamentos mensais.
+**Provus Finance** e uma API REST de gestao financeira pessoal que permite controlar receitas, despesas, contas bancarias e categorias.
 
-O projeto foi concebido como **portfólio de testes de software**, seguindo as melhores práticas do mercado:
+O projeto foi concebido como **portfolio de testes de software**, seguindo as melhores praticas:
 
-- 📋 Documentação completa (visão, regras de negócio, user stories)
-- 🏗️ Arquitetura em camadas (controller → service → repository)
-- 🧪 Foco em testes de API com rastreabilidade total
-- 📊 Rastreabilidade entre regras de negócio, user stories e casos de teste
-- 🔄 CI/CD automatizado via GitHub Actions
-
----
-
-## 🎯 Objetivos
-
-### Objetivo principal
-Demonstrar domínio técnico em **Quality Assurance (QA)** através de um projeto real, com:
-- Elaboração e rastreabilidade de casos de teste
-- Automação de testes de API com Mocha, Chai e Supertest
-- Documentação profissional de APIs via Swagger/OpenAPI
-- Testes manuais e exploratórios com Postman
-- Testes de performance com k6
-- Pipeline de integração contínua
-
-### Objetivos secundários
-- Aplicar **SQL puro** sem abstrações de ORM
-- Implementar **autenticação segura** com JWT e boas práticas
+- Documentacao completa (visao, regras de negocio, user stories)
+- Arquitetura em camadas (controller > service > repository)
+- 164 testes automatizados com rastreabilidade total
+- 160 casos de teste documentados no formato ISO-29119-3
+- Documentacao interativa via Swagger/OpenAPI
+- Colecao Postman com 102 requests
 
 ---
 
-## 🗂️ Índice da Documentação
+## Inicio Rapido
 
-A documentação é organizada em pastas numeradas, seguindo a ordem lógica de leitura:
-
-### 📘 [01 — Visão do Produto](./docs/01-visao/)
-Descrição do produto, problema que resolve, público-alvo e personas.
-
-### 📗 [02 — Regras de Negócio](./docs/02-regras-negocio/)
-Regras funcionais e não-funcionais que governam o comportamento da aplicação.
-
-### 📙 [03 — Arquitetura](./docs/03-arquitetura/)
-Stack tecnológica, estrutura do projeto, modelo de dados e contratos da API.
-
-### 📕 [04 — Épicos](./docs/04-epicos/)
-Grandes blocos de funcionalidade agrupados por contexto de negócio.
-
-### 📓 [05 — User Stories](./docs/05-user-stories/)
-Histórias de usuário detalhadas, organizadas por fase de entrega.
-
-### 📔 [06 — Testes](./docs/06-testes/)
-Estratégia de testes, casos de teste e matriz de rastreabilidade.
-
----
-
-## 🗓️ Fluxo de Desenvolvimento
-
-O projeto segue um fluxo profissional, com fases bem definidas:
-
-```
-  ETAPA 1 — PLANEJAMENTO
-  ├── Visão do produto
-  ├── Regras de negócio
-  ├── Arquitetura
-  ├── Épicos
-  └── User Stories
-
-  ETAPA 2 — DESENVOLVIMENTO DA API
-  └── Implementação conforme User Stories
-
-  ETAPA 3 — PLANO DE TESTES
-  ├── Estratégia de testes
-  ├── Casos de teste derivados das User Stories
-  └── Matriz de rastreabilidade
-
-  ETAPA 4 — AUTOMAÇÃO DE TESTES
-  ├── Testes de API (Supertest + Mocha + Chai)
-  ├── Coleções Postman
-  └── Performance com k6
-```
-
----
-
-## 🚧 Roadmap por Fases
-
-| Fase | Conteúdo | Status |
-|:---:|---|:---:|
-| **1** | Fundação: cadastro, autenticação, contas, transações e categorias | 🔜 Planejamento |
-| **2** | Gestão de cartão de crédito e faturas | ⏳ Futuro |
-| **3** | Orçamento mensal e metas | ⏳ Futuro |
-| **4** | Relatórios e exportações | ⏳ Futuro |
-| **5** | Diferenciais (rastreador emocional, memória de preços, simulador) | ⏳ Futuro |
-| **6** | Perfil administrativo (admin) | ⏳ Futuro |
-| **7** | Frontend web | ⏳ Futuro |
-
----
-
-## 🛠️ Stack Tecnológica
-
-### Backend
-- **Node.js 20+** com **Express**
-- **JavaScript puro** (ES Modules)
-- **SQLite** via `better-sqlite3` — arquivo em desenvolvimento, memória em testes
-- **JWT** (`jsonwebtoken`) para autenticação
-- **Bcrypt** para hash de senhas
-- **Swagger** (`swagger-jsdoc` + `swagger-ui-express`) para documentação
-
-### Testes
-- **Mocha** — test runner
-- **Chai** — assertions
-- **Supertest** — testes de API
-- **Postman** — testes manuais e documentação viva
-- **k6** — testes de performance
-
-### Frontend *(fase futura)*
-- Stack a definir
-
-### Infraestrutura
-- **GitHub Actions** — CI/CD
-- **Git / GitHub Projects** — controle de versão e gestão de tarefas
-
-> 📄 Stack completa documentada em [03-arquitetura/stack-tecnologica.md](./docs/03-arquitetura/stack-tecnologica.md)
-
----
-
-## 🚀 Como Executar
-
-**Pré-requisitos:** Node.js 20+
+**Pre-requisitos:** Node.js 20+
 
 ```bash
-# 1. Clonar o repositório
+# Clonar e instalar
 git clone https://github.com/HenriquePatti/provus-finance.git
 cd provus-finance/api
-
-# 2. Instalar dependências
 npm install
 
-# 3. Configurar variáveis de ambiente
+# Configurar ambiente
 cp .env.example .env
-# Edite .env se necessário (JWT_SECRET, PORT, etc.)
 
-# 4. Criar o banco e rodar migrations
+# Criar banco e popular categorias padrao
 npm run db:migrate
 
-# 5. Popular dados iniciais (opcional)
-npm run db:seed
-
-# 6. Iniciar a API
+# Iniciar a API
 npm start
 ```
 
-A API estará disponível em `http://localhost:3000`.
-Documentação Swagger em `http://localhost:3000/api-docs`.
+| Recurso | URL |
+|---|---|
+| API | `http://localhost:3000` |
+| Swagger | `http://localhost:3000/api-docs` |
 
-### Executar os testes
+### Comandos disponiveis
 
 ```bash
-# Roda migrations do banco de teste + suite completa de testes
+npm start          # Inicia a API
+npm run dev        # Inicia com hot-reload
+npm test           # Roda 164 testes automatizados
+npm run test:report # Gera relatorio HTML (Mochawesome)
+npm run db:migrate  # Aplica migrations
+npm run db:reset    # Reseta banco e recria
+```
+
+---
+
+## Endpoints da API
+
+### Usuarios (EP-001)
+
+| Metodo | Rota | Descricao | Auth |
+|---|---|---|:---:|
+| POST | `/api/usuarios` | Cadastrar usuario | - |
+| GET | `/api/usuarios/me` | Consultar perfil | JWT |
+| PUT | `/api/usuarios/me` | Atualizar nome/email | JWT |
+| PUT | `/api/usuarios/me/senha` | Alterar senha | JWT |
+| DELETE | `/api/usuarios/me` | Excluir conta | JWT |
+
+### Autenticacao (EP-002)
+
+| Metodo | Rota | Descricao | Auth |
+|---|---|---|:---:|
+| POST | `/api/auth/login` | Login (retorna JWT) | - |
+
+### Contas (EP-003)
+
+| Metodo | Rota | Descricao | Auth |
+|---|---|---|:---:|
+| POST | `/api/contas` | Criar conta | JWT |
+| GET | `/api/contas` | Listar contas | JWT |
+| GET | `/api/contas/:id` | Consultar conta + saldo | JWT |
+| PUT | `/api/contas/:id` | Atualizar nome | JWT |
+| DELETE | `/api/contas/:id` | Desativar (soft delete) | JWT |
+| GET | `/api/contas/:id/saldo` | Consultar saldo calculado | JWT |
+
+### Categorias (EP-004)
+
+| Metodo | Rota | Descricao | Auth |
+|---|---|---|:---:|
+| GET | `/api/categorias` | Listar (padrao + personalizadas) | JWT |
+| POST | `/api/categorias` | Criar personalizada | JWT |
+| GET | `/api/categorias/:id` | Consultar categoria | JWT |
+| PUT | `/api/categorias/:id` | Atualizar nome/icone | JWT |
+| DELETE | `/api/categorias/:id` | Excluir personalizada | JWT |
+
+### Transacoes (EP-005)
+
+| Metodo | Rota | Descricao | Auth |
+|---|---|---|:---:|
+| POST | `/api/transacoes` | Registrar receita/despesa | JWT |
+| GET | `/api/transacoes` | Listar com filtros e busca | JWT |
+| GET | `/api/transacoes/:id` | Consultar transacao | JWT |
+| PUT | `/api/transacoes/:id` | Atualizar valor/descricao/data/categoria | JWT |
+| DELETE | `/api/transacoes/:id` | Excluir (hard delete) | JWT |
+
+---
+
+## Testes e Qualidade
+
+### Numeros
+
+| Metrica | Valor |
+|---|---|
+| Testes automatizados | 164 (Mocha + Chai + Supertest) |
+| Casos de teste documentados | 160 (ISO-29119-3) |
+| Requests Postman | 102 |
+| Endpoints cobertos | 22/22 (100%) |
+| User Stories cobertas | 25/25 (100%) |
+
+### Executar testes
+
+```bash
+# Suite completa (terminal)
 npm test
+
+# Relatorio HTML interativo com graficos
+npm run test:report
+open reports/mochawesome/provus-finance.html
 ```
 
-### Resetar o banco de desenvolvimento
+### Ferramentas
 
-```bash
-# Remove o banco, recria e roda seeds
-npm run db:reset
+| Ferramenta | Uso |
+|---|---|
+| **Mocha + Chai + Supertest** | Testes automatizados de API |
+| **Mochawesome** | Relatorio HTML com graficos |
+| **Postman** | Testes manuais e exploratorios |
+| **Swagger** | Documentacao interativa da API |
+
+### Rastreabilidade
+
+Cada teste possui rastreabilidade completa:
+
+```
+Regra de Negocio (RU/RC/RK/RT/RG)
+  > User Story (US-XXX)
+    > Caso de Teste (CT-EPXXX-USXXX-YY)  — ISO-29119-3
+      > Teste Automatizado (*.test.js)    — Mocha
+      > Request Postman                   — Exploratorio
 ```
 
-> Os scripts são compatíveis com **Mac, Linux e Windows**.
+Naming dos testes:
+```
+[CT-EP001-US001-02][US-001][RU-003] deve retornar 409 para e-mail ja cadastrado
+```
 
 ---
 
-## 🧪 Estratégia de Testes
+## Stack Tecnologica
 
-O projeto adota uma estratégia **focada e profissional**: apenas **Testes de API**.
+### Backend
 
-```
-        ┌──────────────────────┐
-        │    TESTES DE API     │  ← Supertest + Mocha + Chai
-        │  (fluxo HTTP total)  │
-        └──────────────────────┘
-```
+| Tecnologia | Uso |
+|---|---|
+| Node.js 20+ | Runtime |
+| Express | Framework HTTP |
+| SQLite (better-sqlite3) | Banco de dados |
+| JWT (jsonwebtoken) | Autenticacao |
+| Bcrypt | Hash de senhas |
+| Swagger (swagger-jsdoc) | Documentacao da API |
 
-### Por que apenas Testes de API?
+### Testes
 
-- ✅ Cobrem regras de negócio via fluxo HTTP real
-- ✅ Testam autenticação, autorização, validações e respostas
-- ✅ Exercitam banco real (SQLite) em ambiente controlado
-- ✅ Código mais simples, sem mocks complexos
-- ✅ Foco claro e alinhado ao objetivo de portfólio
-
-### Complementos
-- **Postman** — testes manuais, exploratórios e documentação viva da API
-- **k6** — testes de performance em rotas críticas
-
-> 📄 Estratégia detalhada em [06-testes/estrategia-testes.md](./docs/06-testes/estrategia-testes.md)
+| Tecnologia | Uso |
+|---|---|
+| Mocha | Test runner |
+| Chai | Assertions |
+| Supertest | Cliente HTTP para testes |
+| Mochawesome | Relatorio HTML |
+| Postman | Testes manuais |
 
 ---
 
-## 📊 Gestão do Projeto
+## Estrutura do Projeto
+
+```
+provus-finance/
+  api/
+    database/
+      migrations/          # 4 migrations (usuarios, contas, categorias, transacoes)
+    src/
+      config/              # Database, Swagger
+      controllers/         # 4 controllers
+      middlewares/          # Auth JWT, tratamento de erros
+      repositories/        # 4 repositories (SQL puro)
+      routes/              # 5 routers com Swagger inline
+      services/            # 4 services (regras de negocio)
+      utils/               # Hash, JWT helpers
+    tests/
+      api/
+        auth/              # 9 testes (login)
+        usuarios/          # 41 testes (CRUD + senha + exclusao)
+        contas/            # 39 testes (CRUD + soft delete + saldo)
+        categorias/        # 33 testes (CRUD + protecao padrao)
+        transacoes/        # 40 testes (CRUD + filtros + saldo)
+      fixtures/            # Factories de dados de teste
+      helpers/             # Database e JWT helpers
+  docs/
+    01-visao/              # Visao do produto, personas
+    02-regras-negocio/     # 286 regras (RU, RC, RK, RT, RG)
+    03-arquitetura/        # Stack, modelo de dados, contratos
+    04-epicos/             # 5 epicos da Fase 1
+    05-user-stories/       # 25 user stories detalhadas
+    06-testes/             # Estrategia, plano e 160 casos de teste
+  postman/                 # Colecao com 102 requests
+```
+
+---
+
+## Documentacao
+
+| Pasta | Conteudo |
+|---|---|
+| [01 — Visao](./docs/01-visao/) | Produto, problema, personas |
+| [02 — Regras de Negocio](./docs/02-regras-negocio/) | 286 regras funcionais e nao-funcionais |
+| [03 — Arquitetura](./docs/03-arquitetura/) | Stack, modelo de dados, contratos da API |
+| [04 — Epicos](./docs/04-epicos/) | 5 epicos com dependencias e prioridades |
+| [05 — User Stories](./docs/05-user-stories/) | 25 US com criterios de aceitacao em Gherkin |
+| [06 — Testes](./docs/06-testes/) | Estrategia, plano e 160 CTs (ISO-29119-3) |
+
+---
+
+## Roadmap
+
+| Fase | Conteudo | Status |
+|:---:|---|:---:|
+| **1** | Fundacao: usuarios, autenticacao, contas, categorias, transacoes | Concluida |
+| **2** | Gestao de cartao de credito e faturas | Futuro |
+| **3** | Orcamento mensal e metas | Futuro |
+| **4** | Relatorios e exportacoes | Futuro |
+| **5** | Diferenciais (rastreador emocional, simulador) | Futuro |
+| **6** | Perfil administrativo (admin) | Futuro |
+| **7** | Frontend web | Futuro |
+
+---
+
+## Gestao do Projeto
 
 - **Metodologia**: Kanban
 - **Board**: [GitHub Projects](../../projects)
-- **Issues**: cada User Story vira uma issue
-- **Commits**: padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/)
-- **Definition of Done**:
-  - ✅ Código implementado conforme User Story
-  - ✅ Casos de teste de API implementados e passando
-  - ✅ Documentação da API atualizada no Swagger
-  - ✅ Pull Request revisado e aprovado
+- **Issues**: cada User Story vira uma issue com labels e rastreabilidade
+- **Commits**: padrao [Conventional Commits](https://www.conventionalcommits.org/pt-br/)
+- **Pull Requests**: labels por epico e tipo (`tipo:api`, `tipo:testes`, `epic:*`)
 
 ---
 
-## 🤝 Contribuição
+## Licenca
 
-Este é um projeto de portfólio, mas sugestões e feedbacks são bem-vindos via [Issues](../../issues).
-
----
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja [LICENSE](./LICENSE) para mais informações.
+Distribuido sob a licenca MIT. Veja [LICENSE](./LICENSE) para mais informacoes.
 
 ---
 
 <div align="center">
 
-**Desenvolvido com foco em qualidade e boas práticas de engenharia de software.**
+**Desenvolvido por [Henrique Patti](https://github.com/HenriquePatti)**
+
+*Foco em qualidade, rastreabilidade e boas praticas de engenharia de software.*
 
 </div>
