@@ -6,6 +6,7 @@
 
 *Projeto de portfolio focado em testes de software, demonstrando o ciclo completo de desenvolvimento com qualidade — da documentacao de requisitos a automacao de testes de API.*
 
+![CI](https://github.com/HenriquePatti/provus-finance/actions/workflows/tests.yml/badge.svg)
 ![Status](https://img.shields.io/badge/fase%201-conclu%C3%ADda-brightgreen)
 ![Testes](https://img.shields.io/badge/testes-159%20passing%20%2B%205%20pending-brightgreen)
 ![Endpoints](https://img.shields.io/badge/endpoints-22-blue)
@@ -64,7 +65,7 @@ npm start
 ```bash
 npm start          # Inicia a API
 npm run dev        # Inicia com hot-reload
-npm test           # Roda 164 testes automatizados
+npm test           # Roda testes (159 passing + 5 pending)
 npm run test:report # Gera relatorio HTML (Mochawesome)
 npm run db:migrate  # Aplica migrations
 npm run db:reset    # Reseta banco e recria
@@ -244,7 +245,36 @@ provus-finance/
 | [03 — Arquitetura](./docs/03-arquitetura/) | Stack, modelo de dados, contratos da API |
 | [04 — Epicos](./docs/04-epicos/) | 5 epicos com dependencias e prioridades |
 | [05 — User Stories](./docs/05-user-stories/) | 25 US com criterios de aceitacao em Gherkin |
-| [06 — Testes](./docs/06-testes/) | Estrategia, plano e 160 CTs (ISO-29119-3) |
+| [06 — Testes](./docs/06-testes/) | Estrategia, plano, 160 CTs (ISO-29119-3), metricas, sessoes exploratorias |
+
+---
+
+## CI/CD
+
+Pipeline automatizado via GitHub Actions com 2 jobs:
+
+| Job | Proposito | Status Esperado |
+|---|---|---|
+| **Suite de Testes** | 159 passing + 5 pending (Node 20 e 22) | Verde |
+| **Bugs Conhecidos** | Testes dos bugs #89 e #90 sem skip | Vermelho (esperado) |
+
+Relatorios Mochawesome disponiveis como artefatos em cada execucao.
+
+Ver execucoes: [GitHub Actions](../../actions)
+
+---
+
+## Metricas de Qualidade
+
+| Indicador | Valor |
+|---|---|
+| Bugs em Producao | 0% |
+| Taxa de Reteste | 2.4% |
+| Cobertura de Automacao | 99.4% (159/160 CTs) |
+| Cobertura de Testes de US | 100% (160/160) |
+| Qualidade da Release (QR) | 0.85 |
+
+Detalhes completos em [`docs/06-testes/metricas.md`](./docs/06-testes/metricas.md).
 
 ---
 
