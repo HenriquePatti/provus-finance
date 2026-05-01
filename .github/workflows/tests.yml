@@ -11,7 +11,7 @@ jobs:
   # Job 1: Suite principal — deve estar VERDE
   # ============================================================
   tests:
-    name: Suite de Testes (164 passing)
+    name: Suite de Testes (159 passing + 5 pending)
     runs-on: ubuntu-latest
 
     strategy:
@@ -64,6 +64,7 @@ jobs:
   known-failures:
     name: Bugs Conhecidos (Issues #89, #90)
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     defaults:
       run:
@@ -95,7 +96,6 @@ jobs:
           sed -i 's/it\.skip(/it(/' tests/api/transacoes/conta-inativa.test.js
 
       - name: Executar testes de bugs conhecidos (falhas esperadas)
-        continue-on-error: true
         run: |
           npx mocha \
             tests/api/usuarios/xss.test.js \
@@ -105,6 +105,7 @@ jobs:
             --reporter-options reportDir=reports/known-failures,reportFilename=known-failures,html=true,json=true,overwrite=true
 
       - name: Upload relatorio bugs conhecidos
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: known-failures-report
