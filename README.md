@@ -7,7 +7,7 @@
 *Projeto de portfolio focado em testes de software, demonstrando o ciclo completo de desenvolvimento com qualidade — da documentacao de requisitos a automacao de testes de API.*
 
 ![Status](https://img.shields.io/badge/fase%201-conclu%C3%ADda-brightgreen)
-![Testes](https://img.shields.io/badge/testes-164%20passing-brightgreen)
+![Testes](https://img.shields.io/badge/testes-159%20passing%20%2B%205%20pending-brightgreen)
 ![Endpoints](https://img.shields.io/badge/endpoints-22-blue)
 ![Node](https://img.shields.io/badge/node-20%2B-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -24,10 +24,10 @@ O projeto foi concebido como **portfolio de testes de software**, seguindo as me
 
 - Documentacao completa (visao, regras de negocio, user stories)
 - Arquitetura em camadas (controller > service > repository)
-- 164 testes automatizados com rastreabilidade total
+- 159 testes automatizados passando + 5 pendentes (bugs conhecidos)
 - 160 casos de teste documentados no formato ISO-29119-3
 - Documentacao interativa via Swagger/OpenAPI
-- Colecao Postman com 102 requests
+- Colecao Postman com 109 requests
 
 ---
 
@@ -129,16 +129,16 @@ npm run db:reset    # Reseta banco e recria
 
 | Metrica | Valor |
 |---|---|
-| Testes automatizados | 164 (Mocha + Chai + Supertest) |
+| Testes automatizados | 159 passing + 5 pending (Mocha + Chai + Supertest) |
 | Casos de teste documentados | 160 (ISO-29119-3) |
-| Requests Postman | 102 |
+| Requests Postman | 109 |
 | Endpoints cobertos | 22/22 (100%) |
 | User Stories cobertas | 25/25 (100%) |
 
 ### Executar testes
 
 ```bash
-# Suite completa (terminal)
+# Suite completa (159 passing + 5 pending)
 npm test
 
 # Relatorio HTML interativo com graficos
@@ -217,10 +217,10 @@ provus-finance/
     tests/
       api/
         auth/              # 9 testes (login)
-        usuarios/          # 41 testes (CRUD + senha + exclusao)
+        usuarios/          # 41 testes + 4 pending (CRUD + senha + exclusao + XSS)
         contas/            # 39 testes (CRUD + soft delete + saldo)
         categorias/        # 33 testes (CRUD + protecao padrao)
-        transacoes/        # 40 testes (CRUD + filtros + saldo)
+        transacoes/        # 40 testes + 1 pending (CRUD + filtros + saldo)
       fixtures/            # Factories de dados de teste
       helpers/             # Database e JWT helpers
   docs/
@@ -230,7 +230,7 @@ provus-finance/
     04-epicos/             # 5 epicos da Fase 1
     05-user-stories/       # 25 user stories detalhadas
     06-testes/             # Estrategia, plano e 160 casos de teste
-  postman/                 # Colecao com 102 requests
+  postman/                 # Colecao com 109 requests
 ```
 
 ---
@@ -245,6 +245,19 @@ provus-finance/
 | [04 — Epicos](./docs/04-epicos/) | 5 epicos com dependencias e prioridades |
 | [05 — User Stories](./docs/05-user-stories/) | 25 US com criterios de aceitacao em Gherkin |
 | [06 — Testes](./docs/06-testes/) | Estrategia, plano e 160 CTs (ISO-29119-3) |
+
+---
+
+## Bugs Conhecidos
+
+| Issue | Descricao | Tipo | Severidade | Status |
+|---|---|---|---|---|
+| [#89](../../issues/89) | Campos de texto aceitam HTML/JS sem sanitizacao | Melhoria | Media | Planejada (pre-Fase 7) |
+| [#90](../../issues/90) | PUT transacao aceito em conta inativa (RT-057) | Bug | Media | Correcao planejada |
+
+Detalhes completos com reproducao e plano de correcao nas issues. Testes automatizados criados (pending) em `api/tests/api/usuarios/xss.test.js` e `api/tests/api/transacoes/conta-inativa.test.js`.
+
+Descobertos via sessoes exploratorias documentadas em `docs/06-testes/sessoes-exploratorias/`.
 
 ---
 

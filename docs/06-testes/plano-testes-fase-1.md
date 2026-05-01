@@ -81,8 +81,8 @@ Para cada US da Fase 1:
 | US-002 | `GET /api/usuarios/me` | 5 | 5 | 5 | RU-028 a RU-030, RG-004,RG-008 a RG-012 |
 | US-003 | `PUT /api/usuarios/me` | 6 | 6 | 6 | RU-031 a RU-036, RG-020,RG-046 |
 | US-004 | `PUT /api/usuarios/me/senha` | 7 | 7 | 7 | RU-037 a RU-042, RG-001,RG-004 |
-| US-005 | `DELETE /api/usuarios/me` | 7 | 7 | — | RU-043 a RU-049, RG-038 |
-| **Subtotal** | **5 endpoints** | **39** | **39** | **32** | |
+| US-005 | `DELETE /api/usuarios/me` | 7 | 7 | 7 | RU-043 a RU-049, RG-038 |
+| **Subtotal** | **5 endpoints** | **39** | **39** | **39** | |
 
 Documentos: `casos-teste-ep-001-usuarios.md` / `ep-001-usuarios.md`
 
@@ -148,8 +148,8 @@ Documentos: `casos-teste-ep-005-transacoes.md` / `ep-005-transacoes.md`
 | **User Stories cobertas** | 25 / 25 (100%) |
 | **Endpoints cobertos** | 22 / 22 (100%) |
 | **Casos de teste documentados (ISO-29119-3)** | 160 |
-| **Testes automatizados (Mocha)** | 164 |
-| **Requests Postman** | 102 |
+| **Testes automatizados (Mocha)** | 159 passing + 5 pending |
+| **Requests Postman** | 109 |
 | **Regras de negocio rastreadas** | RU (49) + RC (54) + RK (56) + RT (75) + RG (52) |
 
 ---
@@ -204,8 +204,8 @@ A Fase 1 e considerada concluida em qualidade quando:
 
 - [x] Todas as 25 US cobertas com testes automatizados
 - [x] 160 casos de teste documentados no formato ISO-29119-3
-- [x] 164 testes automatizados passando (Mocha + Chai + Supertest)
-- [x] 102 requests na colecao Postman
+- [x] 159 testes automatizados passando + 5 pending (Mocha + Chai + Supertest)
+- [x] 109 requests na colecao Postman
 - [x] Pipeline estavel (verde) na branch principal
 - [x] Rastreabilidade CT → US → Regra atualizada para todos os epicos
 - [x] Relatorio Mochawesome configurado e funcional
@@ -220,10 +220,10 @@ A Fase 1 e considerada concluida em qualidade quando:
 | Metrica | Valor |
 |---|---|
 | % de US com automacao | 100% (25/25) |
-| % de CTs automatizados | 100% (164 testes / 160 CTs) |
-| Taxa de sucesso da suite | 100% (164 passing, 0 failing) |
+| % de CTs automatizados | 100% (159 passing + 5 pending / 160 CTs) |
+| Taxa de sucesso da suite | 97% (159 passing, 5 pending, 0 failing) |
 | Tempo medio da suite | ~14s |
-| Defeitos criticos em aberto | 0 |
+| Bugs conhecidos em aberto | 2 (Issues #89 e #90, com plano de correcao) |
 
 ---
 
