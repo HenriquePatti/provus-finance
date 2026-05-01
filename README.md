@@ -247,6 +247,8 @@ provus-finance/
 | [05 — User Stories](./docs/05-user-stories/) | 25 US com criterios de aceitacao em Gherkin |
 | [06 — Testes](./docs/06-testes/) | Estrategia, plano, 160 CTs (ISO-29119-3), metricas, sessoes exploratorias |
 
+Documentacao completa tambem disponivel na [Wiki do projeto](https://github.com/HenriquePatti/provus-finance/wiki) (31 paginas com navegacao).
+
 ---
 
 ## CI/CD
