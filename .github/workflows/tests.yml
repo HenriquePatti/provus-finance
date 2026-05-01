@@ -1,0 +1,112 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ============================================================
+  # Job 1: Suite principal — deve estar VERDE
+  # ============================================================
+  tests:
+    name: Suite de Testes (164 passing)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Configurar ambiente
+        run: cp .env.example .env
+
+      - name: Rodar migrations (banco de teste)
+        run: npm run test:setup
+
+      - name: Executar testes
+        run: npm test
+
+      - name: Gerar relatorio Mochawesome
+        if: matrix.node-version == 22
+        run: npm run test:report
+
+      - name: Upload relatorio Mochawesome
+        if: matrix.node-version == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: mochawesome-report
+          path: api/reports/mochawesome/
+          retention-days: 30
+
+  # ============================================================
+  # Job 2: Bugs conhecidos — VERMELHO esperado
+  # Demonstra bugs documentados e reproduziveis (Issues #89, #90)
+  # ============================================================
+  known-failures:
+    name: Bugs Conhecidos (Issues #89, #90)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Configurar ambiente
+        run: cp .env.example .env
+
+      - name: Rodar migrations (banco de teste)
+        run: npm run test:setup
+
+      - name: Remover skip dos testes de bugs conhecidos
+        run: |
+          sed -i 's/it\.skip(/it(/' tests/api/usuarios/xss.test.js
+          sed -i 's/it\.skip(/it(/' tests/api/transacoes/conta-inativa.test.js
+
+      - name: Executar testes de bugs conhecidos (falhas esperadas)
+        continue-on-error: true
+        run: |
+          npx mocha \
+            tests/api/usuarios/xss.test.js \
+            tests/api/transacoes/conta-inativa.test.js \
+            --timeout 10000 \
+            --reporter mochawesome \
+            --reporter-options reportDir=reports/known-failures,reportFilename=known-failures,html=true,json=true,overwrite=true
+
+      - name: Upload relatorio bugs conhecidos
+        uses: actions/upload-artifact@v4
+        with:
+          name: known-failures-report
+          path: api/reports/known-failures/
+          retention-days: 30
