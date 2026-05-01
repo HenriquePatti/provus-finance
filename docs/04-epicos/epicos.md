@@ -156,7 +156,7 @@ Este épico cobre:
 | US-004 | Alterar senha |
 | US-005 | Excluir própria conta |
 
-> 📄 Detalhamento completo em [`fase-1-fundacao.md`](../05-user-stories/fase-1-fundacao.md).
+> 📄 Detalhamento completo em [`fase-1-fundacao.md`](../05-user-stories/ep-001-usuarios.md).
 
 ### 🔗 Regras de Negócio Cobertas
 
@@ -501,7 +501,7 @@ EP-005 (Transações)   ███████████     6 US
 - 📄 [Visão do Produto](../01-visao/visao-produto.md)
 - 📄 [Personas](../01-visao/personas.md)
 - 📄 [Regras de Negócio](../02-regras-negocio/)
-- 📄 [User Stories — Fase 1](../05-user-stories/fase-1-fundacao.md) *(próximo documento)*
+- 📄 [User Stories — Fase 1](../05-user-stories/ep-001-usuarios.md) *(próximo documento)*
 
 ---
 
