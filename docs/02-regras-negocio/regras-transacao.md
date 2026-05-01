@@ -132,7 +132,7 @@ Valores fora da lista retornam **400 Bad Request** com código `FORMATO_INVALIDO
 `"Receita"` ou `"DESPESA"` são rejeitados. Apenas minúsculas são aceitas.
 
 ### `RT-012` — Tipo é imutável após criação
-O campo `tipo` **não pode ser alterado** após a criação. Tentativas retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+Campos tipo e contaId enviados no body do PUT são ignorados silenciosamente, preservando os valores originais.
 
 > 💡 **Justificativa:** Alterar o tipo inverte o efeito da transação no saldo. Se o usuário errou, deve excluir e criar uma nova.
 
@@ -153,7 +153,7 @@ Valores com mais de 2 casas decimais (ex: `10.123`) são rejeitados com **400 Ba
 Internamente, o sistema converte o valor para centavos antes de persistir (conforme `RG-030`). `10.99` vira `1099`.
 
 ### `RT-017` — Valor deve ser numérico
-Strings, booleanos ou outros tipos retornam **400 Bad Request** com código `FORMATO_INVALIDO`.
+Strings, booleanos ou outros tipos retornam **400 Bad Request** com código `VALIDACAO`.
 
 ---
 
@@ -178,13 +178,13 @@ Múltiplos espaços internos são reduzidos a um único espaço (conforme `RG-01
 
 ## 📅 Validação de Data
 
-### `RT-022` — Data em formato ISO 8601
-O campo `dataTransacao` deve estar em formato ISO 8601 UTC (conforme `RG-024`):
+### `RT-022` — Data em formato date YYYY-MM-DD
+Formato date YYYY-MM-DD. Datas são armazenadas sem componente de hora.
 ```
-2026-04-22T15:30:00.000Z
+2026-04-22
 ```
 
-Formatos como `"22/04/2026"` ou `"2026-04-22"` são rejeitados com **400 Bad Request**.
+Formatos como `"22/04/2026"` são rejeitados com **400 Bad Request**.
 
 ### `RT-023` — Datas futuras são permitidas
 O usuário pode registrar transações com data futura (ex: agendamentos, salários previstos). Não há restrição de data máxima (conforme `RG-027`).
@@ -195,8 +195,8 @@ O usuário pode lançar retroativamente transações de qualquer data anterior. 
 ### `RT-025` — Datas impossíveis retornam 400
 Datas como `2026-02-30` ou `2026-13-01` são rejeitadas com **400 Bad Request** (conforme `RG-028`).
 
-### `RT-026` — Data é armazenada em UTC
-Independentemente do fuso enviado pelo cliente, a data é convertida e armazenada em UTC (conforme `RG-025`).
+### `RT-026` — Data é armazenada como string
+Armazenada como string YYYY-MM-DD no SQLite.
 
 ---
 
@@ -214,7 +214,7 @@ Se o `contaId` não existir na base, retorna **404 Not Found** com código `CONT
 Se a conta estiver com `ativa = false`, a transação é rejeitada com **422 Unprocessable Entity** e código `CONTA_INATIVA`.
 
 ### `RT-030` — Conta não pode ser alterada após criação
-O campo `contaId` **não pode ser alterado** na atualização de transação. Tentativas retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+O campo `contaId` enviado no body do PUT é ignorado silenciosamente, preservando o valor original.
 
 > 💡 **Justificativa:** Mover transação entre contas muda o saldo de ambas, criando cenários complexos. Se o usuário errou, deve excluir e recriar.
 
@@ -260,32 +260,25 @@ A listagem é ordenada por:
 1. `dataTransacao` **descendente** (mais recentes primeiro)
 2. `id` **descendente** (desempate)
 
-### `RT-038` — Paginação obrigatória
-Segue paginação padrão do sistema (conforme `RG-047`): 20 por página, máximo 100.
+### `RT-038` — Paginação (Fase 2)
+Paginação não implementada na Fase 1. A listagem retorna todos os resultados. Planejado para Fase 2.
 
 ### `RT-039` — Valores em reais na resposta
 Todos os valores são expressos em reais (conforme `RG-029`), já convertidos a partir de centavos.
 
-### `RT-040` — Resposta inclui dados de conta e categoria
-A resposta de cada transação inclui objetos resumidos da conta e da categoria relacionadas:
+### `RT-040` — Resposta inclui IDs de conta e categoria
+Resposta inclui contaId e categoriaId (IDs). Dados enriquecidos de conta e categoria planejados para Fase 2.
 ```json
 {
   "id": 42,
   "tipo": "despesa",
   "valor": 85.50,
   "descricao": "Almoço",
-  "dataTransacao": "2026-04-22T12:30:00.000Z",
-  "conta": {
-    "id": 1,
-    "nome": "Nubank",
-    "tipo": "digital"
-  },
-  "categoria": {
-    "id": 3,
-    "nome": "Alimentação",
-    "icone": "🍔"
-  },
-  "criadoEm": "2026-04-22T15:00:00.000Z"
+  "dataTransacao": "2026-04-22",
+  "contaId": 1,
+  "categoriaId": 3,
+  "criadoEm": "2026-04-22T15:00:00.000Z",
+  "atualizadoEm": "2026-04-22T15:00:00.000Z"
 }
 ```
 
@@ -314,13 +307,13 @@ GET /api/transacoes?categoriaId=12
 
 ### `RT-044` — Filtro por intervalo de datas
 ```
-GET /api/transacoes?de=2026-04-01&ate=2026-04-30
+GET /api/transacoes?dataInicio=2026-04-01&dataFim=2026-04-30
 ```
 
-Os parâmetros `de` e `ate`:
-- Aceitam formato `YYYY-MM-DD` ou ISO 8601 completo
+Os parâmetros `dataInicio` e `dataFim`:
+- Aceitam formato `YYYY-MM-DD`
 - Incluem o início e o fim do intervalo (inclusivos)
-- Funcionam independentemente — pode usar só `de`, só `ate`, ou ambos
+- Funcionam independentemente — pode usar só `dataInicio`, só `dataFim`, ou ambos
 
 ### `RT-045` — Filtro por descrição (busca parcial)
 ```
@@ -335,20 +328,18 @@ A busca é:
 ### `RT-046` — Combinação de filtros
 Múltiplos filtros podem ser combinados. São aplicados com AND lógico:
 ```
-GET /api/transacoes?tipo=despesa&contaId=1&de=2026-04-01&categoriaId=3
+GET /api/transacoes?tipo=despesa&contaId=1&dataInicio=2026-04-01&categoriaId=3
 ```
 
 ### `RT-047` — Filtros inválidos são ignorados
 Valores inválidos em filtros (ex: `tipo=abc`) são **ignorados silenciosamente** (conforme `RG-050`), não causam erro.
 
-### `RT-048` — Ordenação customizável
-Parâmetros `ordenarPor` e `ordem`:
-- `ordenarPor` — `dataTransacao`, `valor` ou `criadoEm`
-- `ordem` — `asc` ou `desc`
+### `RT-048` — Ordenação
+Ordenação fixa por dataTransacao. Parâmetro ordem aceita asc/desc (padrão desc). Ordenação por outros campos planejada para Fase 2.
 
 Exemplo:
 ```
-GET /api/transacoes?ordenarPor=valor&ordem=desc
+GET /api/transacoes?ordem=asc
 ```
 
 ---
@@ -359,13 +350,13 @@ GET /api/transacoes?ordenarPor=valor&ordem=desc
 `GET /api/transacoes/:id` retorna os dados completos de uma transação específica.
 
 ### `RT-050` — Usuário só consulta suas próprias transações
-Se a transação pertencer a outro usuário (via conta), retorna **404 Not Found** com código `RECURSO_NAO_ENCONTRADO`.
+Se a transação pertencer a outro usuário (via conta), retorna **404 Not Found** com código `TRANSACAO_NAO_ENCONTRADA`.
 
 ### `RT-051` — Transação inexistente retorna 404
 Se o ID não existir, retorna **404 Not Found**.
 
-### `RT-052` — Resposta inclui dados relacionados
-A resposta inclui objetos resumidos de conta e categoria, igual à listagem.
+### `RT-052` — Resposta inclui IDs relacionados
+Resposta inclui contaId e categoriaId (IDs). Dados enriquecidos de conta e categoria planejados para Fase 2.
 
 ---
 
@@ -383,7 +374,7 @@ Via `PUT /api/transacoes/:id`, o usuário pode atualizar:
 - `contaId` (imutável, conforme `RT-030`)
 - `id`, `criadoEm`, `atualizadoEm`
 
-Tentativas de alterar esses campos retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+Campos tipo e contaId enviados no body do PUT são ignorados silenciosamente.
 
 ### `RT-055` — Atualização parcial permitida
 O usuário não precisa reenviar todos os campos. Apenas os que deseja alterar.
@@ -503,12 +494,11 @@ Total de **75 regras** de transação, organizadas em 16 grupos:
 | Código | HTTP | Situação |
 |---|:---:|---|
 | `CONTA_NAO_ENCONTRADA` | 404 | Conta inexistente ou de outro usuário |
-| `RECURSO_NAO_ENCONTRADO` | 404 | Transação ou categoria não encontrada |
+| `TRANSACAO_NAO_ENCONTRADA` | 404 | Transação não encontrada ou de outro usuário |
 | `CONTA_INATIVA` | 422 | Tentativa de operação em conta desativada |
 | `CATEGORIA_INCOMPATIVEL` | 422 | Tipo da categoria não suporta o tipo da transação |
 | `VALOR_INVALIDO` | 422 | Valor zero, negativo ou acima do limite |
-| `CAMPO_IMUTAVEL` | 400 | Tentativa de alterar `tipo` ou `contaId` |
-| `FORMATO_INVALIDO` | 400 | Tipo, valor, data ou categoria inválidos |
+| `FORMATO_INVALIDO` | 400 | Tipo, data ou categoria inválidos |
 | `CAMPO_OBRIGATORIO` | 400 | Campo obrigatório ausente |
 | `VALIDACAO` | 400 | Múltiplos campos inválidos |
 | `TOKEN_AUSENTE` | 401 | Token não enviado |

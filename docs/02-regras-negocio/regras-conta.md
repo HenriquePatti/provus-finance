@@ -1,6 +1,6 @@
 # 🏦 Regras de Negócio — Contas
 
-> Documento que descreve as regras de negócio do domínio de **contas** financeiras: contas correntes, poupanças, contas digitais, carteiras e dinheiro físico.
+> Documento que descreve as regras de negócio do domínio de **contas** financeiras: contas correntes, poupanças, carteiras digitais, dinheiro físico e investimentos.
 
 ---
 
@@ -89,18 +89,18 @@ O campo `tipo` aceita **exatamente** um dos seguintes valores:
 |---|---|---|
 | `corrente` | Conta corrente bancária | Itaú, Bradesco, Santander |
 | `poupanca` | Conta poupança | Caixa Poupança, BB Poupança |
-| `digital` | Banco digital | Nubank, Inter, C6 |
-| `carteira` | Carteira virtual | Mercado Pago, PayPal, PicPay |
+| `carteira_digital` | Carteira digital / banco digital | Nubank, Inter, Mercado Pago |
 | `dinheiro` | Dinheiro físico | Carteira de cédulas, cofre |
+| `investimento` | Conta de investimento | Corretora, CDB, Tesouro Direto |
 
 ### `RC-008` — Tipo inválido retorna 400
-Qualquer valor fora da lista acima retorna **400 Bad Request** com código `FORMATO_INVALIDO`.
+Qualquer valor fora da lista acima retorna **400 Bad Request** com código `VALIDACAO`.
 
 ### `RC-009` — Tipo é case-sensitive
 O valor deve ser enviado em **minúsculas**. `"Digital"` ou `"DIGITAL"` são rejeitados.
 
 ### `RC-010` — Tipo é imutável após criação
-O campo `tipo` **não pode ser alterado** após a criação. Tentativas de alterar retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+O campo `tipo` **não pode ser alterado** após a criação. Campos `tipo` e `saldoInicial` enviados no body do `PUT` são **ignorados silenciosamente**, preservando os valores originais.
 
 > 💡 **Justificativa:** Mudar o tipo de conta retroativamente poderia causar inconsistências em relatórios históricos.
 
@@ -109,7 +109,7 @@ O campo `tipo` **não pode ser alterado** após a criação. Tentativas de alter
 ## 📛 Validações de Nome
 
 ### `RC-011` — Comprimento do nome
-O nome da conta deve ter entre **2 e 50 caracteres** após o trim automático.
+O nome da conta deve ter entre **2 e 100 caracteres** após o trim automático.
 
 ### `RC-012` — Nome aceita caracteres especiais
 Acentos, espaços internos e caracteres comuns são permitidos:
@@ -120,6 +120,8 @@ Acentos, espaços internos e caracteres comuns são permitidos:
 ### `RC-013` — Nome não pode ser apenas números
 Nomes compostos exclusivamente por dígitos (`"12345"`) retornam **400 Bad Request**.
 
+> ⚠️ **Nota:** Validação presente em usuários e categorias. Em contas, nomes numéricos são aceitos.
+
 ### `RC-014` — Nome tem espaços normalizados
 Múltiplos espaços internos são reduzidos a um único espaço (conforme `RG-016`).
 
@@ -127,17 +129,16 @@ Múltiplos espaços internos são reduzidos a um único espaço (conforme `RG-01
 
 ## 💰 Saldo Inicial e Saldo Atual
 
-### `RC-015` — Saldo inicial aceita valores positivos, zero ou negativos
-O `saldoInicial` representa o valor que a conta tinha **no momento em que foi criada** no sistema. Pode ser:
+### `RC-015` — Saldo inicial deve ser maior ou igual a zero
+Saldo inicial deve ser maior ou igual a zero (`>= 0`). Valores negativos são rejeitados.
 - **Positivo** — saldo em dinheiro
 - **Zero** — conta zerada ou nova
-- **Negativo** — conta no cheque especial ou saldo devedor
 
-### `RC-016` — Saldo inicial tem limites
-O `saldoInicial` deve estar entre **-R$ 9.999.999,99** e **R$ 9.999.999,99**. Valores fora dessa faixa retornam **400 Bad Request**.
+### `RC-016` — Saldo inicial sem limite superior na Fase 1
+Saldo inicial não possui limite superior definido na Fase 1.
 
 ### `RC-017` — Saldo inicial é imutável após criação
-Uma vez criada, o `saldoInicial` **não pode ser alterado**. Tentativas retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+Uma vez criada, o `saldoInicial` **não pode ser alterado**. O campo `saldoInicial` enviado no body do `PUT` é **ignorado silenciosamente**, preservando o valor original.
 
 > 💡 **Justificativa:** Alterar o saldo inicial afeta retroativamente todos os cálculos. Se o usuário precisar "corrigir", deve usar uma transação de ajuste.
 
@@ -159,15 +160,15 @@ Apenas transações com `conta_id` correspondente são consideradas.
 `GET /api/contas` retorna exclusivamente as contas do usuário autenticado, nunca contas de outros usuários.
 
 ### `RC-021` — Ordem padrão da listagem
-A listagem é ordenada por `criadoEm` **decrescente** (mais recentes primeiro).
+A listagem é ordenada por `criadoEm` **crescente (ASC)** (mais antigas primeiro).
 
 ### `RC-022` — Contas inativas são ocultas por padrão
 Contas com `ativa = false` **não aparecem** na listagem por padrão (conforme `RG-052`).
 
-### `RC-023` — Filtro para incluir contas inativas
-Para incluir contas inativas, o cliente deve enviar:
+### `RC-023` — Filtro para listar contas inativas
+Para listar contas inativas, o cliente deve enviar:
 ```
-GET /api/contas?incluirInativas=true
+GET /api/contas?ativo=false
 ```
 
 ### `RC-024` — Filtro por tipo
@@ -176,10 +177,10 @@ GET /api/contas?incluirInativas=true
 GET /api/contas?tipo=digital
 ```
 
-Se o `tipo` for inválido, o filtro é **ignorado silenciosamente** (conforme `RG-050`) e todas as contas são retornadas.
+Se o `tipo` for inválido, a API retorna **400 Bad Request** com código `VALIDACAO`.
 
-### `RC-025` — Resposta inclui saldo atual calculado
-Cada item da listagem inclui o `saldoAtual` já calculado.
+### `RC-025` — Listagem retorna dados básicos sem saldo calculado
+Listagem retorna dados básicos da conta sem saldo calculado. Para saldo, usar `GET /api/contas/:id` ou `GET /api/contas/:id/saldo`.
 
 ### `RC-026` — Paginação aplicada
 Listagens seguem paginação padrão do sistema (conforme `RG-047`): 20 itens por página, máximo 100.
@@ -215,8 +216,8 @@ Campos **não atualizáveis**:
 - `saldoInicial` (imutável, conforme `RC-017`)
 - `id`, `usuarioId`, `criadoEm`, `atualizadoEm`
 
-### `RC-032` — Tentar atualizar campo imutável retorna 400
-Se a requisição incluir `tipo` ou `saldoInicial`, a API retorna **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+### `RC-032` — Campos imutáveis são ignorados silenciosamente
+Se a requisição incluir `tipo` ou `saldoInicial`, esses campos são **ignorados silenciosamente** e os valores originais são preservados.
 
 ### `RC-033` — Atualização parcial permitida
 O usuário não precisa enviar todos os campos. Apenas `nome` é suficiente.
@@ -226,6 +227,8 @@ O novo `nome` passa pelas mesmas validações (`RC-011` a `RC-014`).
 
 ### `RC-035` — Contas inativas não podem ser atualizadas
 Se a conta estiver inativa (`ativa = false`), a atualização retorna **422 Unprocessable Entity** com código `CONTA_INATIVA`.
+
+> ⚠️ **Nota:** Validação não implementada na Fase 1. Contas inativas podem ter seu nome atualizado via PUT.
 
 ### `RC-036` — Atualização bem-sucedida retorna 200
 A resposta é **200 OK** com o objeto atualizado.
@@ -240,7 +243,7 @@ A resposta é **200 OK** com o objeto atualizado.
 > 💡 **Justificativa:** Preservar histórico de transações vinculadas. Relatórios antigos precisam mostrar a conta corretamente.
 
 ### `RC-038` — Exclusão desvincula contas inativas das listagens
-Após a exclusão, a conta desaparece das listagens padrão (mas permanece acessível via `incluirInativas=true`).
+Após a exclusão, a conta desaparece das listagens padrão (mas permanece acessível via `?ativo=false`).
 
 ### `RC-039` — Transações da conta são preservadas
 As transações vinculadas à conta inativa **não são excluídas** e continuam contabilizando no histórico geral do usuário.
@@ -254,8 +257,8 @@ A resposta é **204 No Content** (conforme `RG-044`).
 ### `RC-042` — Exclusão de conta inexistente retorna 404
 Se o ID não existir ou pertencer a outro usuário, retorna **404 Not Found**.
 
-### `RC-043` — Excluir conta já inativa é idempotente
-Se a conta já estiver inativa, uma nova tentativa de exclusão retorna **204 No Content** sem efeito adicional.
+### `RC-043` — Excluir conta já inativa retorna erro
+Tentar desativar conta já inativa retorna **400 Bad Request** com código `CONTA_JA_INATIVA`.
 
 ---
 
@@ -287,16 +290,13 @@ Retorna:
 ```json
 {
   "contaId": 1,
-  "saldoInicial": 500.00,
-  "saldoAtual": 1245.75,
-  "receitasTotal": 2000.00,
-  "despesasTotal": 1254.25,
-  "calculadoEm": "2026-04-22T15:30:00.000Z"
+  "nome": "Nubank",
+  "saldoCalculado": 1245.75
 }
 ```
 
-### `RC-047` — Valores em reais na resposta
-Os valores são expostos em **reais** (conforme `RG-029`), mesmo sendo armazenados em centavos internamente.
+### `RC-047` — Armazenamento de valores
+Saldo inicial armazenado em reais (`REAL` no SQLite). Transações são armazenadas em centavos.
 
 ### `RC-048` — Cálculo em tempo real
 O saldo é calculado **no momento da requisição**, sem cache. Garante que sempre reflete o estado atual.
@@ -352,8 +352,7 @@ Total de **54 regras** de conta, organizadas em 12 grupos:
 |---|:---:|---|
 | `CONTA_NAO_ENCONTRADA` | 404 | Conta inexistente ou de outro usuário |
 | `CONTA_INATIVA` | 422 | Operação em conta com `ativa = false` |
-| `CAMPO_IMUTAVEL` | 400 | Tentativa de alterar `tipo` ou `saldoInicial` |
-| `FORMATO_INVALIDO` | 400 | Tipo inválido, nome inválido, valor fora dos limites |
+| `CONTA_JA_INATIVA` | 400 | Tentativa de desativar conta já inativa |
 | `CAMPO_OBRIGATORIO` | 400 | `nome` ou `tipo` ausentes |
 | `VALIDACAO` | 400 | Múltiplos campos inválidos |
 | `TOKEN_AUSENTE` | 401 | Token não enviado |

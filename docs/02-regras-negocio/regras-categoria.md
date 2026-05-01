@@ -188,13 +188,13 @@ O campo `tipo` aceita exatamente:
 - `ambos`
 
 ### `RK-020` — Tipo inválido retorna 400
-Valores fora da lista retornam **400 Bad Request** com código `FORMATO_INVALIDO`.
+Valores fora da lista retornam **400 Bad Request** com código `VALIDACAO`.
 
 ### `RK-021` — Tipo é case-sensitive
 `"Despesa"` ou `"DESPESA"` são rejeitados. Apenas minúsculas são aceitas.
 
 ### `RK-022` — Tipo é imutável após criação
-O campo `tipo` **não pode ser alterado** após a criação. Tentativas de alterar retornam **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+O campo tipo enviado no body do PUT é ignorado silenciosamente, preservando o valor original.
 
 > 💡 **Justificativa:** Alterar o tipo pode invalidar transações existentes que usavam a categoria. Se o usuário precisar, deve criar uma nova categoria.
 
@@ -262,7 +262,7 @@ A listagem segue paginação padrão (20 itens por página, máximo 100).
 Qualquer usuário autenticado pode consultar qualquer categoria padrão.
 
 ### `RK-035` — Consulta de categoria personalizada de outro usuário retorna 404
-Se o ID pertencer a uma categoria personalizada de outro usuário, retorna **404 Not Found** com código `RECURSO_NAO_ENCONTRADO` (não revela a existência).
+Se o ID pertencer a uma categoria personalizada de outro usuário, retorna **404 Not Found** com código `CATEGORIA_NAO_ENCONTRADA` (não revela a existência).
 
 ### `RK-036` — Categoria inexistente retorna 404
 Se o ID não existir na base, retorna **404 Not Found**.
@@ -274,7 +274,7 @@ Se o ID não existir na base, retorna **404 Not Found**.
 ### `RK-037` — Apenas categorias personalizadas do usuário podem ser atualizadas
 Tentativas de atualizar categorias padrão retornam **403 Forbidden** com código `ACESSO_NEGADO`.
 
-Tentativas de atualizar categorias personalizadas de outro usuário retornam **404 Not Found** com código `RECURSO_NAO_ENCONTRADO`.
+Tentativas de atualizar categorias personalizadas de outro usuário retornam **404 Not Found** com código `CATEGORIA_NAO_ENCONTRADA`.
 
 ### `RK-038` — Campos atualizáveis
 Via `PUT /api/categorias/:id`, o usuário pode atualizar:
@@ -286,8 +286,8 @@ Campos **não atualizáveis**:
 - `padrao`
 - `id`, `usuarioId`, `criadoEm`, `atualizadoEm`
 
-### `RK-039` — Tentar atualizar campo imutável retorna 400
-Se a requisição incluir `tipo` ou `padrao`, a API retorna **400 Bad Request** com código `CAMPO_IMUTAVEL`.
+### `RK-039` — Campos imutáveis no PUT são ignorados
+Campos tipo e padrao enviados no body são ignorados silenciosamente.
 
 ### `RK-040` — Atualização parcial permitida
 O usuário pode enviar apenas um dos campos (`nome` OU `icone`).
@@ -399,11 +399,10 @@ Total de **56 regras** de categoria, organizadas em 13 grupos:
 
 | Código | HTTP | Situação |
 |---|:---:|---|
-| `RECURSO_NAO_ENCONTRADO` | 404 | Categoria inexistente ou de outro usuário |
+| `CATEGORIA_NAO_ENCONTRADA` | 404 | Categoria inexistente ou de outro usuário |
 | `ACESSO_NEGADO` | 403 | Tentativa de alterar/excluir categoria padrão |
 | `CATEGORIA_EM_USO` | 409 | Exclusão bloqueada por transações vinculadas |
-| `CAMPO_IMUTAVEL` | 400 | Tentativa de alterar `tipo` ou `padrao` |
-| `FORMATO_INVALIDO` | 400 | Tipo/ícone inválido ou nome inválido |
+| `FORMATO_INVALIDO` | 400 | Ícone inválido ou nome inválido |
 | `CAMPO_OBRIGATORIO` | 400 | `nome` ou `tipo` ausentes |
 | `VALIDACAO` | 400 | Múltiplos campos inválidos |
 | `TOKEN_AUSENTE` | 401 | Token não enviado |
