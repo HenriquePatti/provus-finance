@@ -1110,6 +1110,243 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "US-005 — Excluir conta (DELETE /api/usuarios/me)",
+          "description": "Cenários manuais do endpoint `DELETE /api/usuarios/me` cobrindo os 7 casos de teste documentados em `docs/06-testes/casos-teste-ep-001-usuarios.md` (CT-EP001-US005-01 a CT-EP001-US005-07).\n\n**Pré-requisito:** Cadastro (US-001 CT-01) + Login (US-006 CT-01) com JWT em `tokenAtual`.\n\n**IMPORTANTE:** Cada cenário de exclusão bem-sucedida remove o usuário do banco. Para reexecutar, recrie o usuário.",
+          "item": [
+            {
+              "name": "01 — Exclusão com senha correta",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-01\n**US:** US-005\n**Regras:** RU-043, RU-044, RU-047\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual` (login US-006 CT-01).\n- Usuário `ana.souza@teste.local` cadastrado (US-001 CT-01).\n\n**Passos:**\n1. `DELETE /api/usuarios/me` com `senha` correta no body.\n\n**Resultado esperado:**\n- HTTP `204` sem body."
+              },
+              "response": []
+            },
+            {
+              "name": "02 — Exclusão com senha incorreta",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senha\": \"SenhaErrada1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-02\n**US:** US-005\n**Regras:** RU-044\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. `DELETE /api/usuarios/me` com `senha` incorreta no body.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = CREDENCIAIS_INVALIDAS`."
+              },
+              "response": []
+            },
+            {
+              "name": "03 — Exclusão sem senha",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-03\n**US:** US-005\n**Regras:** RU-044, RG-014\n**Prioridade:** Alta\n\n**Pré-condições:**\n- JWT válido em `tokenAtual`.\n\n**Passos:**\n1. `DELETE /api/usuarios/me` com body vazio `{}`.\n\n**Resultado esperado:**\n- HTTP `400`\n- `erro.codigo = CAMPO_OBRIGATORIO`."
+              },
+              "response": []
+            },
+            {
+              "name": "04 — Token inválido após exclusão",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-04\n**US:** US-005\n**Regras:** RU-048\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar CT-01 primeiro (exclusão bem-sucedida).\n- `tokenAtual` ainda contém o JWT do usuário excluído.\n\n**Passos:**\n1. `GET /api/usuarios/me` com o token do usuário já excluído.\n\n**Resultado esperado:**\n- HTTP `404`\n- `erro.codigo = USUARIO_NAO_ENCONTRADO`."
+              },
+              "response": []
+            },
+            {
+              "name": "05 — Email disponível para recadastro",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"email\": \"ana.souza@teste.local\",\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-05\n**US:** US-005\n**Regras:** RU-049\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar CT-01 primeiro (exclusão bem-sucedida).\n- E-mail `ana.souza@teste.local` deve estar livre no banco.\n\n**Passos:**\n1. `POST /api/usuarios` com o mesmo e-mail do usuário excluído.\n\n**Resultado esperado:**\n- HTTP `201`\n- Usuário recriado com sucesso (e-mail liberado após exclusão)."
+              },
+              "response": []
+            },
+            {
+              "name": "06 — Usuário removido do banco",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenAtual}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-06\n**US:** US-005\n**Regras:** RU-045, RT-071\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Executar CT-01 primeiro (exclusão bem-sucedida).\n- `tokenAtual` ainda contém o JWT do usuário excluído.\n\n**Passos:**\n1. `GET /api/usuarios/me` com o token do usuário já excluído.\n\n**Resultado esperado:**\n- HTTP `404`\n- Usuário não existe mais no banco de dados."
+              },
+              "response": []
+            },
+            {
+              "name": "07 — Exclusão sem token",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"senha\": \"SenhaForte1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "description": "**Caso:** CT-EP001-US005-07\n**US:** US-005\n**Regras:** RG-009\n**Prioridade:** Alta\n\n**Pré-condições:**\n- Nenhuma.\n\n**Passos:**\n1. `DELETE /api/usuarios/me` sem header `Authorization`.\n\n**Resultado esperado:**\n- HTTP `401`\n- `erro.codigo = TOKEN_AUSENTE`."
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },

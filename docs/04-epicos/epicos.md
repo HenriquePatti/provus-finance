@@ -468,7 +468,7 @@ A ordem segue as dependências técnicas dos épicos:
 | **Épicos** | 5 |
 | **User Stories estimadas** | 25 |
 | **Regras de negócio cobertas** | 286 |
-| **Endpoints HTTP** | ~23 |
+| **Endpoints HTTP** | 22 |
 | **Sprints sugeridos** | 3 |
 
 ### Distribuição de user stories por épico
