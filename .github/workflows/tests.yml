@@ -96,8 +96,11 @@ jobs:
           sed -i 's/it\.skip(/it(/' tests/api/transacoes/conta-inativa.test.js
 
       - name: Executar testes de bugs conhecidos (falhas esperadas)
+        env:
+          NODE_ENV: test
         run: |
           npx mocha \
+            --no-config \
             tests/api/usuarios/xss.test.js \
             tests/api/transacoes/conta-inativa.test.js \
             --timeout 10000 \
